@@ -3,6 +3,7 @@ import { useAtomValue } from 'jotai';
 
 import { isAuthenticatedAtom, authLoadingAtom, sessionAtom } from '@/store/auth.store';
 import { MainLayout } from '@/components/layout/main-layout';
+import { Loader } from '@/components/ui/loader';
 
 export const Route = createFileRoute('/_main')({
   component: MainRouteLayout,
@@ -14,7 +15,7 @@ function MainRouteLayout() {
   const session = useAtomValue(sessionAtom);
 
   if (isLoading) {
-    return null; // Or a loading spinner
+    return <Loader fullScreen />;
   }
 
   if (!isAuthenticated) {

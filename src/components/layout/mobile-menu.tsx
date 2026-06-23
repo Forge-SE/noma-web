@@ -15,7 +15,7 @@ import {
 import { cn } from '@/utils/cn';
 import useBreakpoint from '@/hooks/use-breakpoint';
 import { CompanySwitchMobile } from '@/components/company-switch';
-import { navigationLinks } from '@/components/layout/sidebar';
+import { allNavLinks } from '@/components/layout/sidebar';
 import * as TopbarItemButton from '@/components/topbar-item-button';
 import { UserButtonMobile } from '@/components/user-button';
 
@@ -98,7 +98,7 @@ export default function MobileMenu() {
             <div className='flex flex-1 flex-col'>
               <div className='flex-1 py-6'>
                 <div className='flex flex-col gap-5'>
-                  {navigationLinks.map(({ icon: Icon, label, href }, i) => (
+                  {allNavLinks.map(({ icon: Icon, label, href }, i) => (
                     <Link
                       key={i}
                       href={href}

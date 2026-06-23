@@ -7,12 +7,22 @@ import {
   RiArrowRightSLine,
   RiBankCardLine,
   RiBarChartBoxLine,
+  RiBuildingLine,
+  RiCheckboxCircleLine,
   RiExchangeLine,
+  RiFileChartLine,
+  RiFilePaperLine,
+  RiFundsLine,
+  RiGitBranchLine,
+  RiGroupLine,
   RiHeadphoneLine,
   RiHistoryLine,
   RiLayoutGridLine,
+  RiOrganizationChart,
   RiSettings2Line,
+  RiShieldCheckLine,
   RiTeamLine,
+  RiWalletLine,
 } from '@remixicon/react';
 import { useHotkeys } from 'react-hotkeys-hook';
 
@@ -30,13 +40,48 @@ type NavigationLink = {
   disabled?: boolean;
 };
 
-export const navigationLinks: NavigationLink[] = [
+export const financeLinks: NavigationLink[] = [
   { icon: RiLayoutGridLine, label: 'Dashboard', href: '/' },
   { icon: RiBankCardLine, label: 'My Cards', href: '/my-cards' },
   { icon: RiArrowLeftRightLine, label: 'Transfer', href: '/send-money' },
   { icon: RiHistoryLine, label: 'Transactions', href: '/transactions' },
   { icon: RiTeamLine, label: 'HR', href: '/hr' },
   { icon: RiBarChartBoxLine, label: 'Marketing', href: '/marketing' },
+];
+
+export const nomaLinks: NavigationLink[] = [
+  { icon: RiCheckboxCircleLine, label: 'Approvals', href: '/approvals' },
+  { icon: RiFilePaperLine, label: 'Spend Requests', href: '/spend-requests' },
+  { icon: RiBuildingLine, label: 'Vendors & Invoices', href: '/vendors-invoices' },
+];
+
+export const moneyLinks: NavigationLink[] = [
+  { icon: RiWalletLine, label: 'Wallets', href: '/wallets' },
+  { icon: RiFundsLine, label: 'Budgets', href: '/budgets' },
+  { icon: RiFileChartLine, label: 'Reports & Export', href: '/reports' },
+];
+
+export const setupLinks: NavigationLink[] = [
+  { icon: RiOrganizationChart, label: 'Departments', href: '/departments' },
+  { icon: RiGroupLine, label: 'Users', href: '/users' },
+];
+
+export const adminLinks: NavigationLink[] = [
+  { icon: RiShieldCheckLine, label: 'Policies', href: '/admin/policies' },
+  { icon: RiGitBranchLine, label: 'Workflows', href: '/admin/workflows' },
+];
+
+export const recordsLinks: NavigationLink[] = [
+  { icon: RiHistoryLine, label: 'Audit Log', href: '/audit-log' },
+];
+
+export const allNavLinks = [
+  ...financeLinks,
+  ...nomaLinks,
+  ...moneyLinks,
+  ...setupLinks,
+  ...adminLinks,
+  ...recordsLinks,
 ];
 
 export const favoriteLinks = [
@@ -150,7 +195,15 @@ export function SidebarHeader({ collapsed }: { collapsed?: boolean }) {
   );
 }
 
-function NavigationMenu({ collapsed }: { collapsed: boolean }) {
+function NavSection({
+  title,
+  links,
+  collapsed,
+}: {
+  title: string;
+  links: NavigationLink[];
+  collapsed: boolean;
+}) {
   const pathname = usePathname();
 
   return (
@@ -160,10 +213,10 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           '-mx-2.5 w-14 px-0 text-center': collapsed,
         })}
       >
-        Main
+        {title}
       </div>
       <div className='space-y-1'>
-        {navigationLinks.map(({ icon: Icon, label, href, disabled }, i) => (
+        {links.map(({ icon: Icon, label, href, disabled }, i) => (
           <Link
             key={i}
             href={href}
@@ -210,6 +263,19 @@ function NavigationMenu({ collapsed }: { collapsed: boolean }) {
           </Link>
         ))}
       </div>
+    </div>
+  );
+}
+
+function NavigationMenu({ collapsed }: { collapsed: boolean }) {
+  return (
+    <div className='flex flex-col gap-5'>
+      <NavSection title='Finance' links={financeLinks} collapsed={collapsed} />
+      <NavSection title='Noma' links={nomaLinks} collapsed={collapsed} />
+      <NavSection title='Money' links={moneyLinks} collapsed={collapsed} />
+      <NavSection title='Setup' links={setupLinks} collapsed={collapsed} />
+      <NavSection title='Admin' links={adminLinks} collapsed={collapsed} />
+      <NavSection title='Records' links={recordsLinks} collapsed={collapsed} />
     </div>
   );
 }
@@ -347,20 +413,25 @@ export default function Sidebar({
       >
         <div
           ref={sidebarRef}
-          className='flex h-full w-[272px] min-w-[272px] flex-col overflow-auto'
+          className='flex h-full w-[272px] min-w-[272px] flex-col'
         >
           <SidebarHeader collapsed={collapsed} />
 
           <SidebarDivider collapsed={collapsed} />
 
           <div
-            className={cn('flex flex-1 flex-col gap-5 pb-4 pt-5', {
-              'px-[22px]': collapsed,
-              'px-5': !collapsed,
-            })}
+            className={cn(
+              'flex-1 overflow-auto pt-5 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]',
+              {
+                'px-[22px]': collapsed,
+                'px-5': !collapsed,
+              },
+            )}
           >
-            <NavigationMenu collapsed={collapsed} />
-            <SettingsAndSupport collapsed={collapsed} />
+            <div className='flex flex-col gap-5 pb-4'>
+              <NavigationMenu collapsed={collapsed} />
+              <SettingsAndSupport collapsed={collapsed} />
+            </div>
           </div>
 
           <SidebarDivider collapsed={collapsed} />
