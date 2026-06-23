@@ -18,6 +18,7 @@ import { Route as MainWalletsRouteImport } from './routes/_main/wallets'
 import { Route as MainVendorsInvoicesRouteImport } from './routes/_main/vendors-invoices'
 import { Route as MainUsersRouteImport } from './routes/_main/users'
 import { Route as MainTransactionsRouteImport } from './routes/_main/transactions'
+import { Route as MainSpendRequestsRouteImport } from './routes/_main/spend-requests'
 import { Route as MainReportsRouteImport } from './routes/_main/reports'
 import { Route as MainPoliciesRouteImport } from './routes/_main/policies'
 import { Route as MainMyCardsRouteImport } from './routes/_main/my-cards'
@@ -29,9 +30,7 @@ import { Route as MainAuditLogRouteImport } from './routes/_main/audit-log'
 import { Route as MainApprovalsRouteImport } from './routes/_main/approvals'
 import { Route as AuthLoginRouteRouteImport } from './routes/auth/login/route'
 import { Route as AuthForgotPasswordRouteRouteImport } from './routes/auth/forgot-password/route'
-import { Route as MainSpendRequestsIndexRouteImport } from './routes/_main/spend-requests/index'
 import { Route as AuthResetPasswordTokenRouteRouteImport } from './routes/auth/reset-password/$token/route'
-import { Route as MainSpendRequestsIdRouteRouteImport } from './routes/_main/spend-requests/$id/route'
 import { Route as MainAdminWorkflowsRouteRouteImport } from './routes/_main/admin/workflows/route'
 import { Route as MainAdminPoliciesRouteRouteImport } from './routes/_main/admin/policies/route'
 
@@ -77,6 +76,11 @@ const MainUsersRoute = MainUsersRouteImport.update({
 const MainTransactionsRoute = MainTransactionsRouteImport.update({
   id: '/transactions',
   path: '/transactions',
+  getParentRoute: () => MainRoute,
+} as any)
+const MainSpendRequestsRoute = MainSpendRequestsRouteImport.update({
+  id: '/spend-requests',
+  path: '/spend-requests',
   getParentRoute: () => MainRoute,
 } as any)
 const MainReportsRoute = MainReportsRouteImport.update({
@@ -134,22 +138,11 @@ const AuthForgotPasswordRouteRoute = AuthForgotPasswordRouteRouteImport.update({
   path: '/forgot-password',
   getParentRoute: () => AuthRouteRoute,
 } as any)
-const MainSpendRequestsIndexRoute = MainSpendRequestsIndexRouteImport.update({
-  id: '/spend-requests/',
-  path: '/spend-requests/',
-  getParentRoute: () => MainRoute,
-} as any)
 const AuthResetPasswordTokenRouteRoute =
   AuthResetPasswordTokenRouteRouteImport.update({
     id: '/reset-password/$token',
     path: '/reset-password/$token',
     getParentRoute: () => AuthRouteRoute,
-  } as any)
-const MainSpendRequestsIdRouteRoute =
-  MainSpendRequestsIdRouteRouteImport.update({
-    id: '/spend-requests/$id',
-    path: '/spend-requests/$id',
-    getParentRoute: () => MainRoute,
   } as any)
 const MainAdminWorkflowsRouteRoute = MainAdminWorkflowsRouteRouteImport.update({
   id: '/admin/workflows',
@@ -177,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/my-cards': typeof MainMyCardsRoute
   '/policies': typeof MainPoliciesRoute
   '/reports': typeof MainReportsRoute
+  '/spend-requests': typeof MainSpendRequestsRoute
   '/transactions': typeof MainTransactionsRoute
   '/users': typeof MainUsersRoute
   '/vendors-invoices': typeof MainVendorsInvoicesRoute
@@ -184,9 +178,7 @@ export interface FileRoutesByFullPath {
   '/workflows': typeof MainWorkflowsRoute
   '/admin/policies': typeof MainAdminPoliciesRouteRoute
   '/admin/workflows': typeof MainAdminWorkflowsRouteRoute
-  '/spend-requests/$id': typeof MainSpendRequestsIdRouteRoute
   '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
-  '/spend-requests/': typeof MainSpendRequestsIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
@@ -202,6 +194,7 @@ export interface FileRoutesByTo {
   '/my-cards': typeof MainMyCardsRoute
   '/policies': typeof MainPoliciesRoute
   '/reports': typeof MainReportsRoute
+  '/spend-requests': typeof MainSpendRequestsRoute
   '/transactions': typeof MainTransactionsRoute
   '/users': typeof MainUsersRoute
   '/vendors-invoices': typeof MainVendorsInvoicesRoute
@@ -210,9 +203,7 @@ export interface FileRoutesByTo {
   '/': typeof MainIndexRoute
   '/admin/policies': typeof MainAdminPoliciesRouteRoute
   '/admin/workflows': typeof MainAdminWorkflowsRouteRoute
-  '/spend-requests/$id': typeof MainSpendRequestsIdRouteRoute
   '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
-  '/spend-requests': typeof MainSpendRequestsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -230,6 +221,7 @@ export interface FileRoutesById {
   '/_main/my-cards': typeof MainMyCardsRoute
   '/_main/policies': typeof MainPoliciesRoute
   '/_main/reports': typeof MainReportsRoute
+  '/_main/spend-requests': typeof MainSpendRequestsRoute
   '/_main/transactions': typeof MainTransactionsRoute
   '/_main/users': typeof MainUsersRoute
   '/_main/vendors-invoices': typeof MainVendorsInvoicesRoute
@@ -238,9 +230,7 @@ export interface FileRoutesById {
   '/_main/': typeof MainIndexRoute
   '/_main/admin/policies': typeof MainAdminPoliciesRouteRoute
   '/_main/admin/workflows': typeof MainAdminWorkflowsRouteRoute
-  '/_main/spend-requests/$id': typeof MainSpendRequestsIdRouteRoute
   '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
-  '/_main/spend-requests/': typeof MainSpendRequestsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -259,6 +249,7 @@ export interface FileRouteTypes {
     | '/my-cards'
     | '/policies'
     | '/reports'
+    | '/spend-requests'
     | '/transactions'
     | '/users'
     | '/vendors-invoices'
@@ -266,9 +257,7 @@ export interface FileRouteTypes {
     | '/workflows'
     | '/admin/policies'
     | '/admin/workflows'
-    | '/spend-requests/$id'
     | '/auth/reset-password/$token'
-    | '/spend-requests/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -284,6 +273,7 @@ export interface FileRouteTypes {
     | '/my-cards'
     | '/policies'
     | '/reports'
+    | '/spend-requests'
     | '/transactions'
     | '/users'
     | '/vendors-invoices'
@@ -292,9 +282,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin/policies'
     | '/admin/workflows'
-    | '/spend-requests/$id'
     | '/auth/reset-password/$token'
-    | '/spend-requests'
   id:
     | '__root__'
     | '/auth'
@@ -311,6 +299,7 @@ export interface FileRouteTypes {
     | '/_main/my-cards'
     | '/_main/policies'
     | '/_main/reports'
+    | '/_main/spend-requests'
     | '/_main/transactions'
     | '/_main/users'
     | '/_main/vendors-invoices'
@@ -319,9 +308,7 @@ export interface FileRouteTypes {
     | '/_main/'
     | '/_main/admin/policies'
     | '/_main/admin/workflows'
-    | '/_main/spend-requests/$id'
     | '/auth/reset-password/$token'
-    | '/_main/spend-requests/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -393,6 +380,13 @@ declare module '@tanstack/react-router' {
       path: '/transactions'
       fullPath: '/transactions'
       preLoaderRoute: typeof MainTransactionsRouteImport
+      parentRoute: typeof MainRoute
+    }
+    '/_main/spend-requests': {
+      id: '/_main/spend-requests'
+      path: '/spend-requests'
+      fullPath: '/spend-requests'
+      preLoaderRoute: typeof MainSpendRequestsRouteImport
       parentRoute: typeof MainRoute
     }
     '/_main/reports': {
@@ -472,26 +466,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthForgotPasswordRouteRouteImport
       parentRoute: typeof AuthRouteRoute
     }
-    '/_main/spend-requests/': {
-      id: '/_main/spend-requests/'
-      path: '/spend-requests'
-      fullPath: '/spend-requests/'
-      preLoaderRoute: typeof MainSpendRequestsIndexRouteImport
-      parentRoute: typeof MainRoute
-    }
     '/auth/reset-password/$token': {
       id: '/auth/reset-password/$token'
       path: '/reset-password/$token'
       fullPath: '/auth/reset-password/$token'
       preLoaderRoute: typeof AuthResetPasswordTokenRouteRouteImport
       parentRoute: typeof AuthRouteRoute
-    }
-    '/_main/spend-requests/$id': {
-      id: '/_main/spend-requests/$id'
-      path: '/spend-requests/$id'
-      fullPath: '/spend-requests/$id'
-      preLoaderRoute: typeof MainSpendRequestsIdRouteRouteImport
-      parentRoute: typeof MainRoute
     }
     '/_main/admin/workflows': {
       id: '/_main/admin/workflows'
@@ -536,6 +516,7 @@ interface MainRouteChildren {
   MainMyCardsRoute: typeof MainMyCardsRoute
   MainPoliciesRoute: typeof MainPoliciesRoute
   MainReportsRoute: typeof MainReportsRoute
+  MainSpendRequestsRoute: typeof MainSpendRequestsRoute
   MainTransactionsRoute: typeof MainTransactionsRoute
   MainUsersRoute: typeof MainUsersRoute
   MainVendorsInvoicesRoute: typeof MainVendorsInvoicesRoute
@@ -544,8 +525,6 @@ interface MainRouteChildren {
   MainIndexRoute: typeof MainIndexRoute
   MainAdminPoliciesRouteRoute: typeof MainAdminPoliciesRouteRoute
   MainAdminWorkflowsRouteRoute: typeof MainAdminWorkflowsRouteRoute
-  MainSpendRequestsIdRouteRoute: typeof MainSpendRequestsIdRouteRoute
-  MainSpendRequestsIndexRoute: typeof MainSpendRequestsIndexRoute
 }
 
 const MainRouteChildren: MainRouteChildren = {
@@ -558,6 +537,7 @@ const MainRouteChildren: MainRouteChildren = {
   MainMyCardsRoute: MainMyCardsRoute,
   MainPoliciesRoute: MainPoliciesRoute,
   MainReportsRoute: MainReportsRoute,
+  MainSpendRequestsRoute: MainSpendRequestsRoute,
   MainTransactionsRoute: MainTransactionsRoute,
   MainUsersRoute: MainUsersRoute,
   MainVendorsInvoicesRoute: MainVendorsInvoicesRoute,
@@ -566,8 +546,6 @@ const MainRouteChildren: MainRouteChildren = {
   MainIndexRoute: MainIndexRoute,
   MainAdminPoliciesRouteRoute: MainAdminPoliciesRouteRoute,
   MainAdminWorkflowsRouteRoute: MainAdminWorkflowsRouteRoute,
-  MainSpendRequestsIdRouteRoute: MainSpendRequestsIdRouteRoute,
-  MainSpendRequestsIndexRoute: MainSpendRequestsIndexRoute,
 }
 
 const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
