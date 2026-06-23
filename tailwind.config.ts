@@ -528,6 +528,9 @@ const config = {
       none: defaultTheme.boxShadow.none,
     },
     extend: {
+      fontFamily: {
+        sans: ['"Stack Sans Headline"', ...defaultTheme.fontFamily.sans],
+      },
       borderRadius: {
         ...borderRadii,
       },

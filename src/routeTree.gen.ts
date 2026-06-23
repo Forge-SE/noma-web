@@ -10,14 +10,29 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as MainRouteImport } from './routes/_main'
+import { Route as OnboardingRouteRouteImport } from './routes/onboarding/route'
+import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as MainIndexRouteImport } from './routes/_main/index'
 import { Route as MainTransactionsRouteImport } from './routes/_main/transactions'
 import { Route as MainMyCardsRouteImport } from './routes/_main/my-cards'
 import { Route as MainMarketingRouteImport } from './routes/_main/marketing'
 import { Route as MainHrRouteImport } from './routes/_main/hr'
+import { Route as AuthLoginRouteRouteImport } from './routes/auth/login/route'
+import { Route as AuthForgotPasswordRouteRouteImport } from './routes/auth/forgot-password/route'
+import { Route as AuthResetPasswordTokenRouteRouteImport } from './routes/auth/reset-password/$token/route'
 
 const MainRoute = MainRouteImport.update({
   id: '/_main',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRouteRoute = OnboardingRouteRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MainIndexRoute = MainIndexRouteImport.update({
@@ -45,46 +60,104 @@ const MainHrRoute = MainHrRouteImport.update({
   path: '/hr',
   getParentRoute: () => MainRoute,
 } as any)
+const AuthLoginRouteRoute = AuthLoginRouteRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthForgotPasswordRouteRoute = AuthForgotPasswordRouteRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthResetPasswordTokenRouteRoute =
+  AuthResetPasswordTokenRouteRouteImport.update({
+    id: '/reset-password/$token',
+    path: '/reset-password/$token',
+    getParentRoute: () => AuthRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/onboarding': typeof OnboardingRouteRoute
   '/': typeof MainIndexRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
+  '/auth/login': typeof AuthLoginRouteRoute
   '/hr': typeof MainHrRoute
   '/marketing': typeof MainMarketingRoute
   '/my-cards': typeof MainMyCardsRoute
   '/transactions': typeof MainTransactionsRoute
+  '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
 }
 export interface FileRoutesByTo {
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/onboarding': typeof OnboardingRouteRoute
+  '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
+  '/auth/login': typeof AuthLoginRouteRoute
   '/hr': typeof MainHrRoute
   '/marketing': typeof MainMarketingRoute
   '/my-cards': typeof MainMyCardsRoute
   '/transactions': typeof MainTransactionsRoute
   '/': typeof MainIndexRoute
+  '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/auth': typeof AuthRouteRouteWithChildren
+  '/onboarding': typeof OnboardingRouteRoute
   '/_main': typeof MainRouteWithChildren
+  '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
+  '/auth/login': typeof AuthLoginRouteRoute
   '/_main/hr': typeof MainHrRoute
   '/_main/marketing': typeof MainMarketingRoute
   '/_main/my-cards': typeof MainMyCardsRoute
   '/_main/transactions': typeof MainTransactionsRoute
   '/_main/': typeof MainIndexRoute
+  '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/hr' | '/marketing' | '/my-cards' | '/transactions'
+  fullPaths:
+    | '/auth'
+    | '/onboarding'
+    | '/'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/hr'
+    | '/marketing'
+    | '/my-cards'
+    | '/transactions'
+    | '/auth/reset-password/$token'
   fileRoutesByTo: FileRoutesByTo
-  to: '/hr' | '/marketing' | '/my-cards' | '/transactions' | '/'
+  to:
+    | '/auth'
+    | '/onboarding'
+    | '/auth/forgot-password'
+    | '/auth/login'
+    | '/hr'
+    | '/marketing'
+    | '/my-cards'
+    | '/transactions'
+    | '/'
+    | '/auth/reset-password/$token'
   id:
     | '__root__'
+    | '/auth'
+    | '/onboarding'
     | '/_main'
+    | '/auth/forgot-password'
+    | '/auth/login'
     | '/_main/hr'
     | '/_main/marketing'
     | '/_main/my-cards'
     | '/_main/transactions'
     | '/_main/'
+    | '/auth/reset-password/$token'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  OnboardingRouteRoute: typeof OnboardingRouteRoute
   MainRoute: typeof MainRouteWithChildren
 }
 
@@ -95,6 +168,20 @@ declare module '@tanstack/react-router' {
       path: ''
       fullPath: '/'
       preLoaderRoute: typeof MainRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_main/': {
@@ -132,8 +219,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainHrRouteImport
       parentRoute: typeof MainRoute
     }
+    '/auth/login': {
+      id: '/auth/login'
+      path: '/login'
+      fullPath: '/auth/login'
+      preLoaderRoute: typeof AuthLoginRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/forgot-password': {
+      id: '/auth/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/auth/forgot-password'
+      preLoaderRoute: typeof AuthForgotPasswordRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/auth/reset-password/$token': {
+      id: '/auth/reset-password/$token'
+      path: '/reset-password/$token'
+      fullPath: '/auth/reset-password/$token'
+      preLoaderRoute: typeof AuthResetPasswordTokenRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
   }
 }
+
+interface AuthRouteRouteChildren {
+  AuthForgotPasswordRouteRoute: typeof AuthForgotPasswordRouteRoute
+  AuthLoginRouteRoute: typeof AuthLoginRouteRoute
+  AuthResetPasswordTokenRouteRoute: typeof AuthResetPasswordTokenRouteRoute
+}
+
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthForgotPasswordRouteRoute: AuthForgotPasswordRouteRoute,
+  AuthLoginRouteRoute: AuthLoginRouteRoute,
+  AuthResetPasswordTokenRouteRoute: AuthResetPasswordTokenRouteRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
 
 interface MainRouteChildren {
   MainHrRoute: typeof MainHrRoute
@@ -154,6 +278,8 @@ const MainRouteChildren: MainRouteChildren = {
 const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  AuthRouteRoute: AuthRouteRouteWithChildren,
+  OnboardingRouteRoute: OnboardingRouteRoute,
   MainRoute: MainRouteWithChildren,
 }
 export const routeTree = rootRouteImport

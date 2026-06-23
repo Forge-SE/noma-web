@@ -354,7 +354,7 @@
 @layer base {
   html {
     @apply text-text-strong-950;
-    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    font-family: 'Stack Sans Headline', ui-sans-serif, system-ui, sans-serif;
   }
 
   /*#region Finance & Banking Specific Colors */

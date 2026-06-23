@@ -13,6 +13,12 @@ import {
   RiSettings2Line,
 } from '@remixicon/react';
 import { useTheme } from 'next-themes';
+import { useAtomValue } from 'jotai';
+
+import { useAuth } from '@/providers/auth-provider';
+import { currentUserAtom } from '@/store/auth.store';
+import { useNavigate } from '@tanstack/react-router';
+import { useToast } from '@/components/ui/toaster';
 
 import { cn, cnExt } from '@/utils/cn';
 import * as Avatar from '@/components/ui/avatar';
@@ -24,6 +30,30 @@ import IconVerifiedFill from '@/icons/icon-verified-fill.svg';
 
 export function UserButton({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
+  const currentUser = useAtomValue(currentUserAtom);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async (e: Event) => {
+    e.preventDefault();
+    try {
+      await logout();
+      toast({
+        title: 'Logged Out',
+        description: 'You have been successfully logged out.',
+        status: 'success',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: 'There was a problem logging out.',
+        status: 'error',
+      });
+    } finally {
+      navigate({ to: '/auth/login' });
+    }
+  };
 
   return (
     <Dropdown.Root>
@@ -42,11 +72,11 @@ export function UserButton({ className }: { className?: string }) {
         >
           <div className='flex-1 space-y-1'>
             <div className='flex items-center gap-0.5 text-label-sm'>
-              Arthur Taylor
+              {currentUser?.name || 'User'}
               <IconVerifiedFill className='size-5 text-verified-base' />
             </div>
             <div className='text-paragraph-xs text-text-sub-600'>
-              arthur@alignui.com
+              {currentUser?.email || ''}
             </div>
           </div>
 
@@ -88,11 +118,9 @@ export function UserButton({ className }: { className?: string }) {
             <Dropdown.ItemIcon as={RiAddLine} />
             Add Account
           </Dropdown.Item>
-          <Dropdown.Item asChild>
-            <Link href='/login'>
-              <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
-              Logout
-            </Link>
+          <Dropdown.Item onSelect={handleLogout}>
+            <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
+            Logout
           </Dropdown.Item>
         </Dropdown.Group>
         <div className='p-2 text-paragraph-sm text-text-soft-400'>
@@ -105,6 +133,30 @@ export function UserButton({ className }: { className?: string }) {
 
 export function UserButtonMobile({ className }: { className?: string }) {
   const { theme, setTheme } = useTheme();
+  const currentUser = useAtomValue(currentUserAtom);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleLogout = async (e: Event) => {
+    e.preventDefault();
+    try {
+      await logout();
+      toast({
+        title: 'Logged Out',
+        description: 'You have been successfully logged out.',
+        status: 'success',
+      });
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description: 'There was a problem logging out.',
+        status: 'error',
+      });
+    } finally {
+      navigate({ to: '/auth/login' });
+    }
+  };
 
   return (
     <Dropdown.Root modal={false}>
@@ -119,11 +171,11 @@ export function UserButtonMobile({ className }: { className?: string }) {
         </Avatar.Root>
         <div className='flex-1 space-y-1'>
           <div className='flex items-center gap-0.5 text-label-md'>
-            Arthur Taylor
+            {currentUser?.name || 'User'}
             <IconVerifiedFill className='size-5 text-verified-base' />
           </div>
           <div className='text-paragraph-sm text-text-sub-600'>
-            arthur@alignui.com
+            {currentUser?.email || ''}
           </div>
         </div>
         <div
@@ -169,11 +221,9 @@ export function UserButtonMobile({ className }: { className?: string }) {
             <Dropdown.ItemIcon as={RiAddLine} />
             Add Account
           </Dropdown.Item>
-          <Dropdown.Item asChild>
-            <Link href='/login'>
-              <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
-              Logout
-            </Link>
+          <Dropdown.Item onSelect={handleLogout}>
+            <Dropdown.ItemIcon as={RiLogoutBoxRLine} />
+            Logout
           </Dropdown.Item>
         </Dropdown.Group>
         <div className='p-2 text-paragraph-sm text-text-soft-400'>

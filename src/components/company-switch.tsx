@@ -5,6 +5,8 @@ import { RiCheckLine, RiExpandUpDownLine } from '@remixicon/react';
 
 import { cn, cnExt } from '@/utils/cn';
 import * as Dropdown from '@/components/ui/dropdown';
+import { useAtomValue } from 'jotai';
+import { currentOrganizationAtom } from '@/store/auth.store';
 
 const companies = [
   {
@@ -60,7 +62,19 @@ function CompanyItem({ company, selected, onSelect }: CompanyItemProps) {
 }
 
 export function CompanySwitch({ className }: { className?: string }) {
-  const [selectedItem, setSelectedItem] = React.useState(companies[0].value);
+  const currentOrg = useAtomValue(currentOrganizationAtom);
+  const activeCompanies = currentOrg
+    ? [
+        {
+          value: currentOrg.slug,
+          name: currentOrg.name,
+          description: 'Primary Organization',
+          logo: '/images/placeholder/apex.svg',
+        },
+      ]
+    : companies;
+
+  const [selectedItem, setSelectedItem] = React.useState(activeCompanies[0].value);
 
   return (
     <Dropdown.Root>
@@ -72,7 +86,7 @@ export function CompanySwitch({ className }: { className?: string }) {
       >
         <img
           src={
-            companies.find((company) => company.value === selectedItem)?.logo
+            activeCompanies.find((company) => company.value === selectedItem)?.logo || activeCompanies[0]?.logo
           }
           alt=''
           className='size-10'
@@ -84,14 +98,12 @@ export function CompanySwitch({ className }: { className?: string }) {
           <div className='flex-1 space-y-1'>
             <div className='text-label-sm'>
               {
-                companies.find((company) => company.value === selectedItem)
-                  ?.name
+                activeCompanies.find((company) => company.value === selectedItem)?.name || activeCompanies[0]?.name
               }
             </div>
             <div className='text-paragraph-xs text-text-sub-600'>
               {
-                companies.find((company) => company.value === selectedItem)
-                  ?.description
+                activeCompanies.find((company) => company.value === selectedItem)?.description || activeCompanies[0]?.description
               }
             </div>
           </div>
@@ -101,7 +113,7 @@ export function CompanySwitch({ className }: { className?: string }) {
         </div>
       </Dropdown.Trigger>
       <Dropdown.Content side='right' sideOffset={24} align='start'>
-        {companies.map((company, i) => (
+        {activeCompanies.map((company, i) => (
           <CompanyItem
             key={i}
             company={company}
@@ -115,7 +127,19 @@ export function CompanySwitch({ className }: { className?: string }) {
 }
 
 export function CompanySwitchMobile({ className }: { className?: string }) {
-  const [selectedItem, setSelectedItem] = React.useState(companies[0].value);
+  const currentOrg = useAtomValue(currentOrganizationAtom);
+  const activeCompanies = currentOrg
+    ? [
+        {
+          value: currentOrg.slug,
+          name: currentOrg.name,
+          description: 'Primary Organization',
+          logo: '/images/placeholder/apex.svg',
+        },
+      ]
+    : companies;
+
+  const [selectedItem, setSelectedItem] = React.useState(activeCompanies[0].value);
 
   return (
     <Dropdown.Root modal={false}>
@@ -127,19 +151,18 @@ export function CompanySwitchMobile({ className }: { className?: string }) {
       >
         <img
           src={
-            companies.find((company) => company.value === selectedItem)?.logo
+            activeCompanies.find((company) => company.value === selectedItem)?.logo || activeCompanies[0]?.logo
           }
           alt=''
           className='size-11'
         />
         <div className='flex-1 space-y-1'>
           <div className='text-label-md'>
-            {companies.find((company) => company.value === selectedItem)?.name}
+            {activeCompanies.find((company) => company.value === selectedItem)?.name || activeCompanies[0]?.name}
           </div>
           <div className='text-paragraph-sm text-text-sub-600'>
             {
-              companies.find((company) => company.value === selectedItem)
-                ?.description
+              activeCompanies.find((company) => company.value === selectedItem)?.description || activeCompanies[0]?.description
             }
           </div>
         </div>
@@ -160,7 +183,7 @@ export function CompanySwitchMobile({ className }: { className?: string }) {
         alignOffset={16}
         className=''
       >
-        {companies.map((company, i) => (
+        {activeCompanies.map((company, i) => (
           <CompanyItem
             key={i}
             company={company}
