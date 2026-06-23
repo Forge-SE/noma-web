@@ -1,17 +1,13 @@
-'use client';
-
 import * as React from 'react';
 import {
   RiArrowDownSFill,
   RiArrowUpSFill,
   RiExpandUpDownFill,
-  RiMore2Line,
-  RiShieldCheckLine,
+  RiFundsLine,
   RiAddLine,
+  RiBuildingLine,
   RiEditLine,
   RiDeleteBinLine,
-  RiCheckLine,
-  RiCloseLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -21,14 +17,38 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
+import { format } from 'date-fns';
 
 import { cn } from '@/utils/cn';
-import * as Button from '@/components/ui/button';
-import * as Checkbox from '@/components/ui/checkbox';
+import { formatMoney } from '@/utils/currency';
 import * as Table from '@/components/ui/table';
 import * as Badge from '@/components/ui/badge';
 import * as Tooltip from '@/components/ui/tooltip';
+import * as Button from '@/components/ui/button';
+import * as ProgressBar from '@/components/ui/progress-bar';
 import { Loader } from '@/components/ui/loader';
+
+const PERIOD_LABELS: Record<string, string> = {
+  WEEKLY: 'Weekly',
+  MONTHLY: 'Monthly',
+  QUARTERLY: 'Quarterly',
+  YEARLY: 'Yearly',
+  CUSTOM: 'Custom',
+};
+
+const PERIOD_COLORS: Record<string, 'blue' | 'green' | 'orange' | 'purple' | 'gray'> = {
+  WEEKLY: 'blue',
+  MONTHLY: 'green',
+  QUARTERLY: 'orange',
+  YEARLY: 'purple',
+  CUSTOM: 'gray',
+};
+
+function getProgressColor(percentage: number): 'green' | 'orange' | 'red' {
+  if (percentage >= 100) return 'red';
+  if (percentage >= 70) return 'orange';
+  return 'green';
+}
 
 const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   if (state === 'asc')
@@ -38,8 +58,8 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (p: any) => void; onDelete: (id: string) => void }) {
-  const policy = row.original;
+function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (b: any) => void; onDelete: (id: string) => void }) {
+  const budget = row.original;
 
   return (
     <Tooltip.Provider>
@@ -48,74 +68,49 @@ function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (p: any) => v
           <Tooltip.Trigger asChild>
             <button
               type="button"
-              onClick={() => onEdit(policy)}
+              onClick={() => onEdit(budget)}
               className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
             >
               <RiEditLine className="size-5" />
             </button>
           </Tooltip.Trigger>
-          <Tooltip.Content>Edit Policy</Tooltip.Content>
+          <Tooltip.Content>Edit Budget</Tooltip.Content>
         </Tooltip.Root>
 
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
               type="button"
-              onClick={() => onDelete(policy.id)}
+              onClick={() => onDelete(budget.id)}
               className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-danger-600 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
             >
               <RiDeleteBinLine className="size-5" />
             </button>
           </Tooltip.Trigger>
-          <Tooltip.Content>Delete Policy</Tooltip.Content>
+          <Tooltip.Content>Delete Budget</Tooltip.Content>
         </Tooltip.Root>
       </div>
     </Tooltip.Provider>
   );
 }
 
-export interface PoliciesTableProps {
+export interface BudgetsTableProps {
   data: any[];
   isLoading?: boolean;
-  onEdit: (policy: any) => void;
+  onEdit: (budget: any) => void;
   onDelete: (id: string) => void;
   onCreate: () => void;
 }
 
-export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: PoliciesTableProps) {
+export function BudgetsTable({ data, isLoading, onEdit, onDelete, onCreate }: BudgetsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const columns = React.useMemo<ColumnDef<any>[]>(() => [
     {
-      id: 'select',
-      header: ({ table }) => (
-        <Checkbox.Root
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && 'indeterminate')
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label='Select all'
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox.Root
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label='Select row'
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-      meta: {
-        className: 'pr-0 w-0',
-      },
-    },
-    {
       id: 'name',
       accessorKey: 'name',
       header: ({ column }) => (
-        <div className='flex items-center gap-0.5'>
+        <div className='flex items-center gap-0.5 text-label-xs font-semibold text-text-sub-600'>
           Name
           <button
             type='button'
@@ -126,66 +121,82 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
         </div>
       ),
       cell: ({ row }) => (
-        <div className='text-paragraph-sm font-medium text-text-strong-950'>
-          {row.original.name}
-        </div>
+        <span className="text-paragraph-sm font-medium text-text-strong-950">{row.original.name}</span>
       ),
     },
     {
-      id: 'priority',
-      accessorKey: 'priority',
-      header: ({ column }) => (
-        <div className='flex items-center gap-0.5'>
-          Priority
-          <button
-            type='button'
-            onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-          >
-            {getSortingIcon(column.getIsSorted())}
-          </button>
-        </div>
-      ),
+      id: 'department',
+      accessorKey: 'departmentId',
+      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Department</span>,
       cell: ({ row }) => (
-        <div className='text-paragraph-sm text-text-sub-600'>
-          {row.original.priority}
+        <div className="flex items-center gap-1.5">
+          <RiBuildingLine className="size-4 text-text-sub-600 shrink-0" />
+          <span className="text-paragraph-sm text-text-sub-600">{row.original.department?.name || 'Organization-wide'}</span>
         </div>
       ),
     },
     {
-      id: 'action',
-      accessorKey: 'actions',
-      header: 'Action',
+      id: 'amount',
+      accessorKey: 'amount',
+      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Amount</span>,
+      cell: ({ row }) => (
+        <span className="text-paragraph-sm font-medium text-text-strong-950">{formatMoney(row.original.amount)}</span>
+      ),
+    },
+    {
+      id: 'spent',
+      accessorKey: 'spent',
+      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Spent</span>,
+      cell: ({ row }) => (
+        <span className="text-paragraph-sm text-text-sub-600">{formatMoney(row.original.spent || 0)}</span>
+      ),
+    },
+    {
+      id: 'progress',
+      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Progress</span>,
       cell: ({ row }) => {
-        const actionType = row.original.actions?.[0]?.type;
+        const amount = row.original.amount || 1;
+        const spent = row.original.spent || 0;
+        const percentage = Math.min((spent / amount) * 100, 100);
+        const color = getProgressColor(percentage);
         return (
-          <Badge.Root 
-            variant="stroke" 
-            color={
-              actionType === 'BLOCK' ? 'red' :
-              actionType === 'REQUIRE_APPROVAL' ? 'orange' :
-              actionType === 'NOTIFY' ? 'blue' : 'green'
-            }
-          >
-            {(actionType || 'UNKNOWN').replace(/_/g, ' ')}
+          <div className="flex items-center gap-3 min-w-[140px]">
+            <ProgressBar.Root value={percentage} max={100} color={color} className="flex-1" />
+            <span className={cn(
+              'text-paragraph-xs font-medium tabular-nums w-10 text-right',
+              color === 'red' && 'text-text-error-600',
+              color === 'orange' && 'text-text-warning-600',
+              color === 'green' && 'text-text-success-600',
+            )}>
+              {Math.round(percentage)}%
+            </span>
+          </div>
+        );
+      },
+    },
+    {
+      id: 'period',
+      accessorKey: 'period',
+      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Period</span>,
+      cell: ({ row }) => {
+        const period = row.original.period;
+        return (
+          <Badge.Root variant="stroke" color={PERIOD_COLORS[period] || 'gray'}>
+            {PERIOD_LABELS[period] || period}
           </Badge.Root>
         );
       },
     },
     {
-      id: 'status',
-      accessorKey: 'enabled',
-      header: 'Status',
+      id: 'periodRange',
+      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Period Range</span>,
       cell: ({ row }) => {
-        return row.original.enabled ? (
-          <Badge.Root variant="stroke" color="green">
-            <Badge.Icon as={RiCheckLine} />
-            Enabled
-          </Badge.Root>
-        ) : (
-          <Badge.Root variant="stroke" color="gray">
-            <Badge.Icon as={RiCloseLine} />
-            Disabled
-          </Badge.Root>
+        const start = row.original.periodStart ? format(new Date(row.original.periodStart), 'MMM d, yyyy') : '—';
+        const end = row.original.periodEnd ? format(new Date(row.original.periodEnd), 'MMM d, yyyy') : '—';
+        return (
+          <span className="text-paragraph-sm text-text-sub-600 whitespace-nowrap">
+            {start} – {end}
+          </span>
         );
       },
     },
@@ -208,36 +219,26 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
     state: {
       sorting,
     },
-    initialState: {
-      sorting: [
-        {
-          id: 'priority',
-          desc: false,
-        },
-      ],
-    },
   });
 
   return (
-    <Table.Root className='[&>table]:min-w-[860px]'>
+    <Table.Root className='[&>table]:min-w-[1000px]'>
       <Table.Header className='whitespace-nowrap'>
         {table.getHeaderGroups().map((headerGroup) => (
           <Table.Row key={headerGroup.id}>
-            {headerGroup.headers.map((header) => {
-              return (
-                <Table.Head
-                  key={header.id}
-                  className={header.column.columnDef.meta?.className}
-                >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </Table.Head>
-              );
-            })}
+            {headerGroup.headers.map((header) => (
+              <Table.Head
+                key={header.id}
+                className={header.column.columnDef.meta?.className}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+              </Table.Head>
+            ))}
           </Table.Row>
         ))}
       </Table.Header>
@@ -256,7 +257,7 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
                   <Table.Cell
                     key={cell.id}
                     className={cn(
-                      'h-12',
+                      'h-14',
                       cell.column.columnDef.meta?.className,
                     )}
                   >
@@ -275,15 +276,15 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
             <Table.Cell colSpan={columns.length} className="h-[500px]">
               <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
                 <div className="flex size-12 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200">
-                  <RiShieldCheckLine className="size-6 text-text-sub-600" />
+                  <RiFundsLine className="size-6 text-text-sub-600" />
                 </div>
                 <div>
-                  <p className="text-label-md text-text-strong-950">No policies found</p>
-                  <p className="text-paragraph-sm text-text-sub-600 mt-1">Get started by creating a new policy to manage approvals.</p>
+                  <p className="text-label-md text-text-strong-950">No budgets found</p>
+                  <p className="text-paragraph-sm text-text-sub-600 mt-1">Get started by creating a new budget to track departmental spending.</p>
                 </div>
                 <Button.Root variant="neutral" mode="stroke" onClick={onCreate} className="ring-1 ring-inset ring-stroke-soft-200 hover:ring-stroke-soft-200">
                   <Button.Icon as={RiAddLine} />
-                  Create Policy
+                  Create Budget
                 </Button.Root>
               </div>
             </Table.Cell>

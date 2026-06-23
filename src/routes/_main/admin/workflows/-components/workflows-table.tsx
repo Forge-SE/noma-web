@@ -4,9 +4,9 @@ import { format } from 'date-fns';
 import { useToast } from '@/components/ui/toaster';
 import * as Table from '@/components/ui/table';
 import * as Button from '@/components/ui/button';
-import * as FancyButton from '@/components/ui/fancy-button';
+import * as Tooltip from '@/components/ui/tooltip';
 import { Loader } from '@/components/ui/loader';
-import { RiEdit2Line, RiDeleteBinLine, RiGitBranchLine, RiAddLine } from '@remixicon/react';
+import { RiEditLine, RiDeleteBinLine, RiGitBranchLine, RiAddLine } from '@remixicon/react';
 import { DELETE_WORKFLOW_TEMPLATE_MUTATION } from '@/graphql/workflows.graphql';
 
 interface WorkflowsTableProps {
@@ -85,13 +85,33 @@ export function WorkflowsTable({ data, isLoading, onEdit, onCreate, onRefetch }:
                 </span>
               </Table.Cell>
               <Table.Cell>
-                <div className="flex items-center justify-end gap-2" onClick={(e) => e.stopPropagation()}>
-                  <FancyButton.Root variant="basic" size="small" onClick={() => onEdit(workflow)}>
-                    <FancyButton.Icon as={RiEdit2Line} />
-                  </FancyButton.Root>
-                  <FancyButton.Root variant="basic" size="small" onClick={() => handleDelete(workflow.id)}>
-                    <FancyButton.Icon as={RiDeleteBinLine} className="text-text-error-600" />
-                  </FancyButton.Root>
+                <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
+                  <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => onEdit(workflow)}
+                          className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
+                        >
+                          <RiEditLine className="size-5" />
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>Edit Workflow</Tooltip.Content>
+                    </Tooltip.Root>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(workflow.id)}
+                          className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-danger-600 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
+                        >
+                          <RiDeleteBinLine className="size-5" />
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>Delete Workflow</Tooltip.Content>
+                    </Tooltip.Root>
+                  </Tooltip.Provider>
                 </div>
               </Table.Cell>
             </Table.Row>

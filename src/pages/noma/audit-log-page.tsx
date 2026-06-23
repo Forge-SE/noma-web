@@ -233,11 +233,6 @@ export function AuditLogPage() {
           <Badge.Root variant='stroke' color={getEntityColor(row.original.entityType)}>
             {row.original.entityType}
           </Badge.Root>
-          {row.original.entityId && (
-            <span className='font-mono text-paragraph-xs text-text-sub-600'>
-              #{row.original.entityId.slice(0, 8)}
-            </span>
-          )}
         </div>
       ),
     },

@@ -24,11 +24,11 @@ import { Route as MainMyCardsRouteImport } from './routes/_main/my-cards'
 import { Route as MainMarketingRouteImport } from './routes/_main/marketing'
 import { Route as MainHrRouteImport } from './routes/_main/hr'
 import { Route as MainDepartmentsRouteImport } from './routes/_main/departments'
-import { Route as MainBudgetsRouteImport } from './routes/_main/budgets'
 import { Route as MainAuditLogRouteImport } from './routes/_main/audit-log'
 import { Route as MainApprovalsRouteImport } from './routes/_main/approvals'
 import { Route as AuthLoginRouteRouteImport } from './routes/auth/login/route'
 import { Route as AuthForgotPasswordRouteRouteImport } from './routes/auth/forgot-password/route'
+import { Route as MainBudgetsRouteRouteImport } from './routes/_main/budgets/route'
 import { Route as MainSpendRequestsIndexRouteImport } from './routes/_main/spend-requests/index'
 import { Route as AuthResetPasswordTokenRouteRouteImport } from './routes/auth/reset-password/$token/route'
 import { Route as MainSpendRequestsIdRouteRouteImport } from './routes/_main/spend-requests/$id/route'
@@ -109,11 +109,6 @@ const MainDepartmentsRoute = MainDepartmentsRouteImport.update({
   path: '/departments',
   getParentRoute: () => MainRoute,
 } as any)
-const MainBudgetsRoute = MainBudgetsRouteImport.update({
-  id: '/budgets',
-  path: '/budgets',
-  getParentRoute: () => MainRoute,
-} as any)
 const MainAuditLogRoute = MainAuditLogRouteImport.update({
   id: '/audit-log',
   path: '/audit-log',
@@ -133,6 +128,11 @@ const AuthForgotPasswordRouteRoute = AuthForgotPasswordRouteRouteImport.update({
   id: '/forgot-password',
   path: '/forgot-password',
   getParentRoute: () => AuthRouteRoute,
+} as any)
+const MainBudgetsRouteRoute = MainBudgetsRouteRouteImport.update({
+  id: '/budgets',
+  path: '/budgets',
+  getParentRoute: () => MainRoute,
 } as any)
 const MainSpendRequestsIndexRoute = MainSpendRequestsIndexRouteImport.update({
   id: '/spend-requests/',
@@ -166,11 +166,11 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRouteRouteWithChildren
   '/onboarding': typeof OnboardingRouteRoute
   '/': typeof MainIndexRoute
+  '/budgets': typeof MainBudgetsRouteRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
   '/auth/login': typeof AuthLoginRouteRoute
   '/approvals': typeof MainApprovalsRoute
   '/audit-log': typeof MainAuditLogRoute
-  '/budgets': typeof MainBudgetsRoute
   '/departments': typeof MainDepartmentsRoute
   '/hr': typeof MainHrRoute
   '/marketing': typeof MainMarketingRoute
@@ -191,11 +191,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
   '/onboarding': typeof OnboardingRouteRoute
+  '/budgets': typeof MainBudgetsRouteRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
   '/auth/login': typeof AuthLoginRouteRoute
   '/approvals': typeof MainApprovalsRoute
   '/audit-log': typeof MainAuditLogRoute
-  '/budgets': typeof MainBudgetsRoute
   '/departments': typeof MainDepartmentsRoute
   '/hr': typeof MainHrRoute
   '/marketing': typeof MainMarketingRoute
@@ -219,11 +219,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRouteRouteWithChildren
   '/onboarding': typeof OnboardingRouteRoute
   '/_main': typeof MainRouteWithChildren
+  '/_main/budgets': typeof MainBudgetsRouteRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
   '/auth/login': typeof AuthLoginRouteRoute
   '/_main/approvals': typeof MainApprovalsRoute
   '/_main/audit-log': typeof MainAuditLogRoute
-  '/_main/budgets': typeof MainBudgetsRoute
   '/_main/departments': typeof MainDepartmentsRoute
   '/_main/hr': typeof MainHrRoute
   '/_main/marketing': typeof MainMarketingRoute
@@ -248,11 +248,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/'
+    | '/budgets'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/approvals'
     | '/audit-log'
-    | '/budgets'
     | '/departments'
     | '/hr'
     | '/marketing'
@@ -273,11 +273,11 @@ export interface FileRouteTypes {
   to:
     | '/auth'
     | '/onboarding'
+    | '/budgets'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/approvals'
     | '/audit-log'
-    | '/budgets'
     | '/departments'
     | '/hr'
     | '/marketing'
@@ -300,11 +300,11 @@ export interface FileRouteTypes {
     | '/auth'
     | '/onboarding'
     | '/_main'
+    | '/_main/budgets'
     | '/auth/forgot-password'
     | '/auth/login'
     | '/_main/approvals'
     | '/_main/audit-log'
-    | '/_main/budgets'
     | '/_main/departments'
     | '/_main/hr'
     | '/_main/marketing'
@@ -437,13 +437,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainDepartmentsRouteImport
       parentRoute: typeof MainRoute
     }
-    '/_main/budgets': {
-      id: '/_main/budgets'
-      path: '/budgets'
-      fullPath: '/budgets'
-      preLoaderRoute: typeof MainBudgetsRouteImport
-      parentRoute: typeof MainRoute
-    }
     '/_main/audit-log': {
       id: '/_main/audit-log'
       path: '/audit-log'
@@ -471,6 +464,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/forgot-password'
       preLoaderRoute: typeof AuthForgotPasswordRouteRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/_main/budgets': {
+      id: '/_main/budgets'
+      path: '/budgets'
+      fullPath: '/budgets'
+      preLoaderRoute: typeof MainBudgetsRouteRouteImport
+      parentRoute: typeof MainRoute
     }
     '/_main/spend-requests/': {
       id: '/_main/spend-requests/'
@@ -527,9 +527,9 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 )
 
 interface MainRouteChildren {
+  MainBudgetsRouteRoute: typeof MainBudgetsRouteRoute
   MainApprovalsRoute: typeof MainApprovalsRoute
   MainAuditLogRoute: typeof MainAuditLogRoute
-  MainBudgetsRoute: typeof MainBudgetsRoute
   MainDepartmentsRoute: typeof MainDepartmentsRoute
   MainHrRoute: typeof MainHrRoute
   MainMarketingRoute: typeof MainMarketingRoute
@@ -549,9 +549,9 @@ interface MainRouteChildren {
 }
 
 const MainRouteChildren: MainRouteChildren = {
+  MainBudgetsRouteRoute: MainBudgetsRouteRoute,
   MainApprovalsRoute: MainApprovalsRoute,
   MainAuditLogRoute: MainAuditLogRoute,
-  MainBudgetsRoute: MainBudgetsRoute,
   MainDepartmentsRoute: MainDepartmentsRoute,
   MainHrRoute: MainHrRoute,
   MainMarketingRoute: MainMarketingRoute,
