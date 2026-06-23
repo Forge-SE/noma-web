@@ -16,18 +16,18 @@ declare module '@tanstack/react-table' {
 
 declare module '*.svg' {
   import type { FunctionComponent, SVGProps } from 'react';
-  const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement>>;
+  const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement> & { className?: string }>;
   export default ReactComponent;
 }
 
 declare module '@/icons/*.svg' {
   import type { FunctionComponent, SVGProps } from 'react';
-  const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement>>;
+  const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement> & { className?: string }>;
   export default ReactComponent;
 }
 
 declare module '@/icons/status/*.svg' {
   import type { FunctionComponent, SVGProps } from 'react';
-  const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement>>;
+  const ReactComponent: FunctionComponent<SVGProps<SVGSVGElement> & { className?: string }>;
   export default ReactComponent;
 }

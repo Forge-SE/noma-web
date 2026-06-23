@@ -5,6 +5,7 @@ import { TooltipProvider } from '@radix-ui/react-tooltip';
 
 import { SearchMenu } from '@/components/search';
 import { apolloClient } from '@/lib/apollo-client';
+import { AuthProvider } from '@/providers/auth-provider';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
@@ -16,8 +17,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
             skipDelayDuration={300}
             disableHoverableContent
           >
-            {children}
-            <SearchMenu />
+            <AuthProvider>
+              {children}
+              <SearchMenu />
+            </AuthProvider>
           </TooltipProvider>
         </ThemeProvider>
       </Provider>
