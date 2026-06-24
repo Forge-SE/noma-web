@@ -204,14 +204,16 @@ export function SpendRequestsTable({ data, isLoading }: SpendRequestsTableProps)
         const status = row.original.status;
         return (
           <Badge.Root 
-            variant="filled" 
+            variant="lighter" 
             color={
               status === 'APPROVED' ? 'green' :
               status === 'REJECTED' ? 'red' :
               status === 'UNDER_REVIEW' ? 'orange' :
               status === 'DISBURSED' ? 'blue' : 'gray'
             }
+            size="medium"
           >
+            <Badge.Dot />
             {status.replace('_', ' ')}
           </Badge.Root>
         );

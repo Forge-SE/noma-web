@@ -15,6 +15,7 @@ import { currentOrganizationAtom } from '@/store/auth.store';
 import { GET_WORKFLOW_TEMPLATES_QUERY } from '@/graphql/workflows.graphql';
 import { WorkflowsTable } from './-components/workflows-table';
 import { WorkflowFormModal } from './-components/workflow-form-modal';
+import { WorkflowViewModal } from './-components/workflow-view-modal';
 
 export const Route = createFileRoute('/_main/admin/workflows')({
   component: WorkflowsPage,
@@ -42,9 +43,17 @@ function WorkflowsPage() {
     w.name.toLowerCase().includes(search.toLowerCase())
   );
 
+  const viewingWorkflow = activeModal === 'view-workflow' && modalId
+    ? workflows.find((w: any) => w.id === modalId) ?? null
+    : null;
+
   const editingWorkflow = activeModal === 'edit-workflow' && modalId
     ? workflows.find((w: any) => w.id === modalId) ?? null
     : null;
+
+  const handleView = (workflow: any) => {
+    openModal('view-workflow', workflow.id);
+  };
 
   const handleCreate = () => {
     openModal('create-workflow');
@@ -104,11 +113,19 @@ function WorkflowsPage() {
         <WorkflowsTable 
           data={filteredWorkflows} 
           isLoading={loading} 
+          onView={handleView}
           onEdit={handleEdit} 
           onCreate={handleCreate}
           onRefetch={refetch}
         />
       </div>
+
+      <WorkflowViewModal
+        isOpen={activeModal === 'view-workflow'}
+        onClose={closeModal}
+        workflow={viewingWorkflow}
+        onEdit={handleEdit}
+      />
 
       <WorkflowFormModal 
         isOpen={activeModal === 'create-workflow' || activeModal === 'edit-workflow'}

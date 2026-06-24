@@ -10,6 +10,7 @@ import {
   RiAddLine,
   RiEditLine,
   RiDeleteBinLine,
+  RiEyeLine,
   RiCheckLine,
   RiCloseLine,
 } from '@remixicon/react';
@@ -27,6 +28,7 @@ import * as Button from '@/components/ui/button';
 import * as Checkbox from '@/components/ui/checkbox';
 import * as Table from '@/components/ui/table';
 import * as Badge from '@/components/ui/badge';
+import * as StatusBadge from '@/components/ui/status-badge';
 import * as Tooltip from '@/components/ui/tooltip';
 import { Loader } from '@/components/ui/loader';
 
@@ -38,12 +40,25 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (p: any) => void; onDelete: (id: string) => void }) {
+function ActionCell({ row, onView, onEdit, onDelete }: { row: any; onView: (p: any) => void; onEdit: (p: any) => void; onDelete: (id: string) => void }) {
   const policy = row.original;
 
   return (
     <Tooltip.Provider>
       <div className="flex items-center gap-1.5 justify-end">
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={() => onView(policy)}
+              className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
+            >
+              <RiEyeLine className="size-5" />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>View Policy</Tooltip.Content>
+        </Tooltip.Root>
+
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
@@ -77,12 +92,13 @@ function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (p: any) => v
 export interface PoliciesTableProps {
   data: any[];
   isLoading?: boolean;
+  onView: (policy: any) => void;
   onEdit: (policy: any) => void;
   onDelete: (id: string) => void;
   onCreate: () => void;
 }
 
-export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: PoliciesTableProps) {
+export function PoliciesTable({ data, isLoading, onView, onEdit, onDelete, onCreate }: PoliciesTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const columns = React.useMemo<ColumnDef<any>[]>(() => [
@@ -158,16 +174,9 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
       cell: ({ row }) => {
         const actionType = row.original.actions?.[0]?.type;
         return (
-          <Badge.Root 
-            variant="stroke" 
-            color={
-              actionType === 'BLOCK' ? 'red' :
-              actionType === 'REQUIRE_APPROVAL' ? 'orange' :
-              actionType === 'NOTIFY' ? 'blue' : 'green'
-            }
-          >
+          <StatusBadge.Root variant="stroke">
             {(actionType || 'UNKNOWN').replace(/_/g, ' ')}
-          </Badge.Root>
+          </StatusBadge.Root>
         );
       },
     },
@@ -177,13 +186,13 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
       header: 'Status',
       cell: ({ row }) => {
         return row.original.enabled ? (
-          <Badge.Root variant="stroke" color="green">
-            <Badge.Icon as={RiCheckLine} />
+          <Badge.Root variant="lighter" color="green" size="medium">
+            <Badge.Dot />
             Enabled
           </Badge.Root>
         ) : (
-          <Badge.Root variant="stroke" color="gray">
-            <Badge.Icon as={RiCloseLine} />
+          <Badge.Root variant="lighter" color="gray" size="medium">
+            <Badge.Dot />
             Disabled
           </Badge.Root>
         );
@@ -192,12 +201,12 @@ export function PoliciesTable({ data, isLoading, onEdit, onDelete, onCreate }: P
     {
       id: 'actionsColumn',
       enableHiding: false,
-      cell: ({ row }) => <ActionCell row={row} onEdit={onEdit} onDelete={onDelete} />,
+      cell: ({ row }) => <ActionCell row={row} onView={onView} onEdit={onEdit} onDelete={onDelete} />,
       meta: {
         className: 'px-5 w-0',
       },
     },
-  ], [onEdit, onDelete]);
+  ], [onView, onEdit, onDelete]);
 
   const table = useReactTable({
     data,

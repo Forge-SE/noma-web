@@ -6,6 +6,7 @@ import {
   RiOrganizationChart,
   RiEditLine,
   RiDeleteBinLine,
+  RiEyeLine,
   RiArrowLeftSLine,
   RiArrowRightSLine,
   RiArrowLeftDoubleLine,
@@ -40,16 +41,19 @@ interface DepartmentsTableProps {
   data: Department[];
   isLoading?: boolean;
   onRefresh: () => void;
+  onView: (dept: Department) => void;
   onEdit: (dept: Department) => void;
   onDelete: (dept: Department) => void;
 }
 
 function ActionCell({
   row,
+  onView,
   onEdit,
   onDelete,
 }: {
   row: any;
+  onView: (dept: Department) => void;
   onEdit: (dept: Department) => void;
   onDelete: (dept: Department) => void;
 }) {
@@ -58,6 +62,19 @@ function ActionCell({
   return (
     <Tooltip.Provider>
       <div className='flex items-center gap-1.5'>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={() => onView(dept)}
+              className='flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950'
+            >
+              <RiEyeLine className='size-5' />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>View Department</Tooltip.Content>
+        </Tooltip.Root>
+
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
@@ -96,7 +113,7 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-export function DepartmentsTable({ data, isLoading, onRefresh, onEdit, onDelete }: DepartmentsTableProps) {
+export function DepartmentsTable({ data, isLoading, onRefresh, onView, onEdit, onDelete }: DepartmentsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   
   // Pagination State
@@ -152,6 +169,7 @@ export function DepartmentsTable({ data, isLoading, onRefresh, onEdit, onDelete 
       cell: ({ row }) => (
         <ActionCell
           row={row}
+          onView={onView}
           onEdit={onEdit}
           onDelete={onDelete}
         />
@@ -160,7 +178,7 @@ export function DepartmentsTable({ data, isLoading, onRefresh, onEdit, onDelete 
         className: 'px-5 w-0',
       },
     },
-  ], [onEdit, onDelete]);
+  ], [onView, onEdit, onDelete]);
 
   // Compute paginated data
   const totalItems = data.length;

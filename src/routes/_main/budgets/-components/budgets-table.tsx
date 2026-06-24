@@ -6,8 +6,10 @@ import {
   RiFundsLine,
   RiAddLine,
   RiBuildingLine,
+  RiBankLine,
   RiEditLine,
   RiDeleteBinLine,
+  RiEyeLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -17,32 +19,13 @@ import {
   type ColumnDef,
   type SortingState,
 } from '@tanstack/react-table';
-import { format } from 'date-fns';
-
 import { cn } from '@/utils/cn';
 import { formatMoney } from '@/utils/currency';
 import * as Table from '@/components/ui/table';
-import * as Badge from '@/components/ui/badge';
 import * as Tooltip from '@/components/ui/tooltip';
 import * as Button from '@/components/ui/button';
 import * as ProgressBar from '@/components/ui/progress-bar';
 import { Loader } from '@/components/ui/loader';
-
-const PERIOD_LABELS: Record<string, string> = {
-  WEEKLY: 'Weekly',
-  MONTHLY: 'Monthly',
-  QUARTERLY: 'Quarterly',
-  YEARLY: 'Yearly',
-  CUSTOM: 'Custom',
-};
-
-const PERIOD_COLORS: Record<string, 'blue' | 'green' | 'orange' | 'purple' | 'gray'> = {
-  WEEKLY: 'blue',
-  MONTHLY: 'green',
-  QUARTERLY: 'orange',
-  YEARLY: 'purple',
-  CUSTOM: 'gray',
-};
 
 function getProgressColor(percentage: number): 'green' | 'orange' | 'red' {
   if (percentage >= 100) return 'red';
@@ -58,12 +41,25 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
   return <RiExpandUpDownFill className='size-5 text-text-sub-600' />;
 };
 
-function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (b: any) => void; onDelete: (id: string) => void }) {
+function ActionCell({ row, onView, onEdit, onDelete }: { row: any; onView: (b: any) => void; onEdit: (b: any) => void; onDelete: (id: string) => void }) {
   const budget = row.original;
 
   return (
     <Tooltip.Provider>
       <div className="flex items-center gap-1.5 justify-end">
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={() => onView(budget)}
+              className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
+            >
+              <RiEyeLine className="size-5" />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>View Budget</Tooltip.Content>
+        </Tooltip.Root>
+
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
@@ -97,12 +93,13 @@ function ActionCell({ row, onEdit, onDelete }: { row: any; onEdit: (b: any) => v
 export interface BudgetsTableProps {
   data: any[];
   isLoading?: boolean;
+  onView: (budget: any) => void;
   onEdit: (budget: any) => void;
   onDelete: (id: string) => void;
   onCreate: () => void;
 }
 
-export function BudgetsTable({ data, isLoading, onEdit, onDelete, onCreate }: BudgetsTableProps) {
+export function BudgetsTable({ data, isLoading, onView, onEdit, onDelete, onCreate }: BudgetsTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const columns = React.useMemo<ColumnDef<any>[]>(() => [
@@ -128,12 +125,18 @@ export function BudgetsTable({ data, isLoading, onEdit, onDelete, onCreate }: Bu
       id: 'department',
       accessorKey: 'departmentId',
       header: () => <span className="text-label-xs font-semibold text-text-sub-600">Department</span>,
-      cell: ({ row }) => (
-        <div className="flex items-center gap-1.5">
-          <RiBuildingLine className="size-4 text-text-sub-600 shrink-0" />
-          <span className="text-paragraph-sm text-text-sub-600">{row.original.department?.name || 'Organization-wide'}</span>
-        </div>
-      ),
+      cell: ({ row }) => {
+        const hasDept = !!row.original.department;
+        const Icon = hasDept ? RiBuildingLine : RiBankLine;
+        return (
+          <div className="flex items-center gap-3">
+            <div className="flex size-8 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200">
+              <Icon className="size-5 text-text-sub-600" />
+            </div>
+            <span className="text-paragraph-sm text-text-sub-600">{row.original.department?.name || 'Organization-wide'}</span>
+          </div>
+        );
+      },
     },
     {
       id: 'amount',
@@ -141,14 +144,6 @@ export function BudgetsTable({ data, isLoading, onEdit, onDelete, onCreate }: Bu
       header: () => <span className="text-label-xs font-semibold text-text-sub-600">Amount</span>,
       cell: ({ row }) => (
         <span className="text-paragraph-sm font-medium text-text-strong-950">{formatMoney(row.original.amount)}</span>
-      ),
-    },
-    {
-      id: 'spent',
-      accessorKey: 'spent',
-      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Spent</span>,
-      cell: ({ row }) => (
-        <span className="text-paragraph-sm text-text-sub-600">{formatMoney(row.original.spent || 0)}</span>
       ),
     },
     {
@@ -175,40 +170,14 @@ export function BudgetsTable({ data, isLoading, onEdit, onDelete, onCreate }: Bu
       },
     },
     {
-      id: 'period',
-      accessorKey: 'period',
-      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Period</span>,
-      cell: ({ row }) => {
-        const period = row.original.period;
-        return (
-          <Badge.Root variant="stroke" color={PERIOD_COLORS[period] || 'gray'}>
-            {PERIOD_LABELS[period] || period}
-          </Badge.Root>
-        );
-      },
-    },
-    {
-      id: 'periodRange',
-      header: () => <span className="text-label-xs font-semibold text-text-sub-600">Period Range</span>,
-      cell: ({ row }) => {
-        const start = row.original.periodStart ? format(new Date(row.original.periodStart), 'MMM d, yyyy') : '—';
-        const end = row.original.periodEnd ? format(new Date(row.original.periodEnd), 'MMM d, yyyy') : '—';
-        return (
-          <span className="text-paragraph-sm text-text-sub-600 whitespace-nowrap">
-            {start} – {end}
-          </span>
-        );
-      },
-    },
-    {
       id: 'actionsColumn',
       enableHiding: false,
-      cell: ({ row }) => <ActionCell row={row} onEdit={onEdit} onDelete={onDelete} />,
+      cell: ({ row }) => <ActionCell row={row} onView={onView} onEdit={onEdit} onDelete={onDelete} />,
       meta: {
         className: 'px-5 w-0',
       },
     },
-  ], [onEdit, onDelete]);
+  ], [onView, onEdit, onDelete]);
 
   const table = useReactTable({
     data,

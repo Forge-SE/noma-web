@@ -22,6 +22,7 @@ import { currentOrganizationAtom } from '@/store/auth.store';
 
 import { GET_POLICIES_QUERY, DELETE_POLICY_MUTATION } from '@/graphql/policies.graphql';
 import { PolicyFormModal } from './-components/policy-form-modal';
+import { PolicyViewModal } from './-components/policy-view-modal';
 import { PoliciesTable } from './-components/policies-table';
 
 export const Route = createFileRoute('/_main/admin/policies')({
@@ -57,9 +58,17 @@ function PoliciesPage() {
     }
   };
 
+  const viewingPolicy = activeModal === 'view-policy' && modalId
+    ? policies.find((p: any) => p.id === modalId) ?? null
+    : null;
+
   const editingPolicy = activeModal === 'edit-policy' && modalId
     ? policies.find((p: any) => p.id === modalId) ?? null
     : null;
+
+  const handleView = (policy: any) => {
+    openModal('view-policy', policy.id);
+  };
 
   const handleEdit = (policy: any) => {
     openModal('edit-policy', policy.id);
@@ -138,11 +147,19 @@ function PoliciesPage() {
         <PoliciesTable
           data={policies}
           isLoading={loading}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onCreate={handleCreate}
         />
       </div>
+
+      <PolicyViewModal
+        isOpen={activeModal === 'view-policy'}
+        onClose={closeModal}
+        policy={viewingPolicy}
+        onEdit={handleEdit}
+      />
 
       <PolicyFormModal
         isOpen={activeModal === 'create-policy' || activeModal === 'edit-policy'}

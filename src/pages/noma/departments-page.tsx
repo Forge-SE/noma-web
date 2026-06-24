@@ -13,6 +13,7 @@ import { currentOrganizationAtom } from '@/store/auth.store';
 
 import { DepartmentsTable, type Department } from '@/routes/_main/departments/-components/departments-table';
 import { DepartmentFormModal } from '@/routes/_main/departments/-components/department-form-modal';
+import { DepartmentViewModal } from '@/routes/_main/departments/-components/department-view-modal';
 import { ConfirmDeleteModal } from '@/routes/_main/departments/-components/confirm-delete-modal';
 
 import {
@@ -86,6 +87,17 @@ export function DepartmentsPage() {
     }
   };
 
+  const viewingDepartment = React.useMemo(() => {
+    if (activeModal === 'view-department' && modalId) {
+      return departments.find((d) => d.id === modalId) ?? null;
+    }
+    return null;
+  }, [activeModal, modalId, departments]);
+
+  const handleView = (dept: Department) => {
+    openModal('view-department', dept.id);
+  };
+
   const handleEditSubmit = async (formData: { name: string; parentId?: string | null }) => {
     if (!modalId) return;
     try {
@@ -156,10 +168,18 @@ export function DepartmentsPage() {
           data={filteredDepartments}
           isLoading={loading}
           onRefresh={refetch}
+          onView={handleView}
           onEdit={(dept) => openModal('edit-department', dept.id)}
           onDelete={(dept) => openModal('delete-department', dept.id)}
         />
       </div>
+
+      <DepartmentViewModal
+        isOpen={activeModal === 'view-department'}
+        onClose={closeModal}
+        department={viewingDepartment}
+        onEdit={(dept) => openModal('edit-department', dept.id)}
+      />
 
       <DepartmentFormModal
         department={null}

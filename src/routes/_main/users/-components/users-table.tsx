@@ -5,6 +5,7 @@ import {
   RiExpandUpDownFill,
   RiTeamLine,
   RiEditLine,
+  RiEyeLine,
   RiMailSendLine,
   RiProhibitedLine,
   RiCheckLine,
@@ -12,6 +13,7 @@ import {
   RiArrowRightSLine,
   RiArrowLeftDoubleLine,
   RiArrowRightDoubleLine,
+  RiSubtractLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -27,6 +29,7 @@ import { cn } from '@/utils/cn';
 import * as Button from '@/components/ui/button';
 import * as Table from '@/components/ui/table';
 import * as Badge from '@/components/ui/badge';
+import * as StatusBadge from '@/components/ui/status-badge';
 import * as Avatar from '@/components/ui/avatar';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
@@ -46,6 +49,7 @@ export interface User {
 export interface UsersTableProps {
   data: User[];
   isLoading?: boolean;
+  onView: (user: User) => void;
   onEdit: (user: User) => void;
   onDeactivate: (user: User) => void;
   onReactivate: (user: User) => void;
@@ -62,12 +66,14 @@ const getSortingIcon = (state: 'asc' | 'desc' | false) => {
 
 function ActionCell({
   row,
+  onView,
   onEdit,
   onDeactivate,
   onReactivate,
   onResendInvite,
 }: {
   row: any;
+  onView: (user: User) => void;
   onEdit: (user: User) => void;
   onDeactivate: (user: User) => void;
   onReactivate: (user: User) => void;
@@ -80,6 +86,19 @@ function ActionCell({
   return (
     <Tooltip.Provider>
       <div className='flex items-center gap-1.5'>
+        <Tooltip.Root>
+          <Tooltip.Trigger asChild>
+            <button
+              type="button"
+              onClick={() => onView(user)}
+              className='flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950'
+            >
+              <RiEyeLine className='size-5' />
+            </button>
+          </Tooltip.Trigger>
+          <Tooltip.Content>View User</Tooltip.Content>
+        </Tooltip.Root>
+
         <Tooltip.Root>
           <Tooltip.Trigger asChild>
             <button
@@ -143,6 +162,7 @@ function ActionCell({
 export function UsersTable({
   data,
   isLoading,
+  onView,
   onEdit,
   onDeactivate,
   onReactivate,
@@ -192,9 +212,9 @@ export function UsersTable({
       cell: ({ row }) => (
         <div className="flex flex-wrap gap-1">
           {row.original.roles.map((role: string) => (
-            <Badge.Root key={role} variant="stroke" color="gray">
+            <StatusBadge.Root key={role} variant="stroke">
               {role}
-            </Badge.Root>
+            </StatusBadge.Root>
           ))}
         </div>
       ),
@@ -215,12 +235,23 @@ export function UsersTable({
       header: () => <span className="text-label-xs font-semibold text-text-sub-600">Status</span>,
       cell: ({ row }) => {
         const status = row.original.status;
-        const isPending = status === 'PENDING' || status === 'INVITED';
+        const isAbsent = status === 'INACTIVE' || status === 'DEACTIVATED';
+        const isActive = status === 'ACTIVE';
+        if (isAbsent) {
+          return (
+            <Badge.Root variant="lighter" color="gray" size="medium">
+              <Badge.Icon as={RiSubtractLine} />
+              {status}
+            </Badge.Root>
+          );
+        }
         return (
           <Badge.Root
-            variant="stroke"
-            color={status === 'ACTIVE' ? 'green' : isPending ? 'orange' : 'gray'}
+            variant="lighter"
+            color={isActive ? 'green' : 'orange'}
+            size="medium"
           >
+            <Badge.Dot />
             {status}
           </Badge.Root>
         );
@@ -244,6 +275,7 @@ export function UsersTable({
       cell: ({ row }) => (
         <ActionCell
           row={row}
+          onView={onView}
           onEdit={onEdit}
           onDeactivate={onDeactivate}
           onReactivate={onReactivate}
@@ -254,7 +286,7 @@ export function UsersTable({
         className: 'px-5 w-px whitespace-nowrap',
       },
     },
-  ], [onEdit, onDeactivate, onReactivate, onResendInvite]);
+  ], [onView, onEdit, onDeactivate, onReactivate, onResendInvite]);
 
   // Compute paginated data
   const totalItems = data.length;

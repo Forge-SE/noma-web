@@ -6,18 +6,19 @@ import * as Table from '@/components/ui/table';
 import * as Button from '@/components/ui/button';
 import * as Tooltip from '@/components/ui/tooltip';
 import { Loader } from '@/components/ui/loader';
-import { RiEditLine, RiDeleteBinLine, RiGitBranchLine, RiAddLine } from '@remixicon/react';
+import { RiEditLine, RiDeleteBinLine, RiGitBranchLine, RiAddLine, RiEyeLine } from '@remixicon/react';
 import { DELETE_WORKFLOW_TEMPLATE_MUTATION } from '@/graphql/workflows.graphql';
 
 interface WorkflowsTableProps {
   data: any[];
   isLoading: boolean;
+  onView: (workflow: any) => void;
   onEdit: (workflow: any) => void;
   onCreate: () => void;
   onRefetch: () => void;
 }
 
-export function WorkflowsTable({ data, isLoading, onEdit, onCreate, onRefetch }: WorkflowsTableProps) {
+export function WorkflowsTable({ data, isLoading, onView, onEdit, onCreate, onRefetch }: WorkflowsTableProps) {
   const { toast } = useToast();
   const [deleteTemplate] = useMutation(DELETE_WORKFLOW_TEMPLATE_MUTATION);
 
@@ -87,6 +88,18 @@ export function WorkflowsTable({ data, isLoading, onEdit, onCreate, onRefetch }:
               <Table.Cell>
                 <div className="flex items-center justify-end gap-1.5" onClick={(e) => e.stopPropagation()}>
                   <Tooltip.Provider>
+                    <Tooltip.Root>
+                      <Tooltip.Trigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => onView(workflow)}
+                          className="flex size-8 items-center justify-center rounded-lg text-text-sub-600 hover:bg-bg-weak-50 hover:text-text-strong-950 focus:outline-none focus:ring-2 focus:ring-stroke-strong-950"
+                        >
+                          <RiEyeLine className="size-5" />
+                        </button>
+                      </Tooltip.Trigger>
+                      <Tooltip.Content>View Workflow</Tooltip.Content>
+                    </Tooltip.Root>
                     <Tooltip.Root>
                       <Tooltip.Trigger asChild>
                         <button

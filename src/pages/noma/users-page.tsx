@@ -14,6 +14,7 @@ import { useModalParams } from '@/hooks/use-modal-params';
 import { currentOrganizationAtom } from '@/store/auth.store';
 
 import { UsersTable, type User } from '@/routes/_main/users/-components/users-table';
+import { UserViewModal } from '@/routes/_main/users/-components/user-view-modal';
 import { InviteUserModal } from '@/routes/_main/users/-components/invite-user-modal';
 import { ConfirmDeactivateModal } from '@/routes/_main/users/-components/confirm-deactivate-modal';
 
@@ -79,12 +80,19 @@ export function UsersPage() {
     return rawDepts.map((d: any) => ({ id: d.id, name: d.name }));
   }, [rawDepts]);
 
+  const viewingUser = activeModal === 'view-user' && modalId
+    ? users.find((u) => u.id === modalId) ?? null
+    : null;
   const editingUser = activeModal === 'edit-user' && modalId
     ? users.find((u) => u.id === modalId) ?? null
     : null;
   const deactivatingUser = activeModal === 'deactivate-user' && modalId
     ? users.find((u) => u.id === modalId) ?? null
     : null;
+
+  const handleView = (user: User) => {
+    openModal('view-user', user.id);
+  };
 
   const handleEdit = (user: User) => {
     openModal('edit-user', user.id);
@@ -233,12 +241,20 @@ export function UsersPage() {
         <UsersTable
           data={users}
           isLoading={usersLoading}
+          onView={handleView}
           onEdit={handleEdit}
           onDeactivate={(user) => openModal('deactivate-user', user.id)}
           onReactivate={handleReactivate}
           onResendInvite={handleResendInvite}
         />
       </div>
+
+      <UserViewModal
+        isOpen={activeModal === 'view-user'}
+        onClose={closeModal}
+        user={viewingUser}
+        onEdit={(user) => openModal('edit-user', user.id)}
+      />
 
       <InviteUserModal
         user={editingUser}

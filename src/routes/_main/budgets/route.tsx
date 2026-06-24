@@ -23,6 +23,7 @@ import { currentOrganizationAtom } from '@/store/auth.store';
 import { GET_BUDGETS_QUERY, DELETE_BUDGET_MUTATION } from '@/graphql/budgets.graphql';
 import { BudgetsTable } from './-components/budgets-table';
 import { BudgetFormModal } from './-components/budget-form-modal';
+import { BudgetViewModal } from './-components/budget-view-modal';
 
 export const Route = createFileRoute('/_main/budgets')({
   component: BudgetsPage,
@@ -57,9 +58,17 @@ function BudgetsPage() {
     }
   };
 
+  const viewingBudget = activeModal === 'view-budget' && modalId
+    ? budgets.find((b: any) => b.id === modalId) ?? null
+    : null;
+
   const editingBudget = activeModal === 'edit-budget' && modalId
     ? budgets.find((b: any) => b.id === modalId) ?? null
     : null;
+
+  const handleView = (budget: any) => {
+    openModal('view-budget', budget.id);
+  };
 
   const handleEdit = (budget: any) => {
     openModal('edit-budget', budget.id);
@@ -139,11 +148,19 @@ function BudgetsPage() {
         <BudgetsTable
           data={budgets}
           isLoading={loading}
+          onView={handleView}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onCreate={handleCreate}
         />
       </div>
+
+      <BudgetViewModal
+        isOpen={activeModal === 'view-budget'}
+        onClose={closeModal}
+        budget={viewingBudget}
+        onEdit={handleEdit}
+      />
 
       <BudgetFormModal
         isOpen={activeModal === 'create-budget' || activeModal === 'edit-budget'}

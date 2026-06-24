@@ -14,7 +14,6 @@ import { Route as OnboardingRouteRouteImport } from './routes/onboarding/route'
 import { Route as AuthRouteRouteImport } from './routes/auth/route'
 import { Route as MainIndexRouteImport } from './routes/_main/index'
 import { Route as MainWorkflowsRouteImport } from './routes/_main/workflows'
-import { Route as MainWalletsRouteImport } from './routes/_main/wallets'
 import { Route as MainVendorsInvoicesRouteImport } from './routes/_main/vendors-invoices'
 import { Route as MainUsersRouteImport } from './routes/_main/users'
 import { Route as MainTransactionsRouteImport } from './routes/_main/transactions'
@@ -29,8 +28,10 @@ import { Route as MainApprovalsRouteImport } from './routes/_main/approvals'
 import { Route as AuthLoginRouteRouteImport } from './routes/auth/login/route'
 import { Route as AuthForgotPasswordRouteRouteImport } from './routes/auth/forgot-password/route'
 import { Route as MainBudgetsRouteRouteImport } from './routes/_main/budgets/route'
+import { Route as MainWalletsIndexRouteImport } from './routes/_main/wallets/index'
 import { Route as MainSpendRequestsIndexRouteImport } from './routes/_main/spend-requests/index'
 import { Route as AuthResetPasswordTokenRouteRouteImport } from './routes/auth/reset-password/$token/route'
+import { Route as MainWalletsIdRouteRouteImport } from './routes/_main/wallets/$id/route'
 import { Route as MainSpendRequestsIdRouteRouteImport } from './routes/_main/spend-requests/$id/route'
 import { Route as MainAdminWorkflowsRouteRouteImport } from './routes/_main/admin/workflows/route'
 import { Route as MainAdminPoliciesRouteRouteImport } from './routes/_main/admin/policies/route'
@@ -57,11 +58,6 @@ const MainIndexRoute = MainIndexRouteImport.update({
 const MainWorkflowsRoute = MainWorkflowsRouteImport.update({
   id: '/workflows',
   path: '/workflows',
-  getParentRoute: () => MainRoute,
-} as any)
-const MainWalletsRoute = MainWalletsRouteImport.update({
-  id: '/wallets',
-  path: '/wallets',
   getParentRoute: () => MainRoute,
 } as any)
 const MainVendorsInvoicesRoute = MainVendorsInvoicesRouteImport.update({
@@ -134,6 +130,11 @@ const MainBudgetsRouteRoute = MainBudgetsRouteRouteImport.update({
   path: '/budgets',
   getParentRoute: () => MainRoute,
 } as any)
+const MainWalletsIndexRoute = MainWalletsIndexRouteImport.update({
+  id: '/wallets/',
+  path: '/wallets/',
+  getParentRoute: () => MainRoute,
+} as any)
 const MainSpendRequestsIndexRoute = MainSpendRequestsIndexRouteImport.update({
   id: '/spend-requests/',
   path: '/spend-requests/',
@@ -145,6 +146,11 @@ const AuthResetPasswordTokenRouteRoute =
     path: '/reset-password/$token',
     getParentRoute: () => AuthRouteRoute,
   } as any)
+const MainWalletsIdRouteRoute = MainWalletsIdRouteRouteImport.update({
+  id: '/wallets/$id',
+  path: '/wallets/$id',
+  getParentRoute: () => MainRoute,
+} as any)
 const MainSpendRequestsIdRouteRoute =
   MainSpendRequestsIdRouteRouteImport.update({
     id: '/spend-requests/$id',
@@ -180,13 +186,14 @@ export interface FileRoutesByFullPath {
   '/transactions': typeof MainTransactionsRoute
   '/users': typeof MainUsersRoute
   '/vendors-invoices': typeof MainVendorsInvoicesRoute
-  '/wallets': typeof MainWalletsRoute
   '/workflows': typeof MainWorkflowsRoute
   '/admin/policies': typeof MainAdminPoliciesRouteRoute
   '/admin/workflows': typeof MainAdminWorkflowsRouteRoute
   '/spend-requests/$id': typeof MainSpendRequestsIdRouteRoute
+  '/wallets/$id': typeof MainWalletsIdRouteRoute
   '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
   '/spend-requests/': typeof MainSpendRequestsIndexRoute
+  '/wallets/': typeof MainWalletsIndexRoute
 }
 export interface FileRoutesByTo {
   '/auth': typeof AuthRouteRouteWithChildren
@@ -205,14 +212,15 @@ export interface FileRoutesByTo {
   '/transactions': typeof MainTransactionsRoute
   '/users': typeof MainUsersRoute
   '/vendors-invoices': typeof MainVendorsInvoicesRoute
-  '/wallets': typeof MainWalletsRoute
   '/workflows': typeof MainWorkflowsRoute
   '/': typeof MainIndexRoute
   '/admin/policies': typeof MainAdminPoliciesRouteRoute
   '/admin/workflows': typeof MainAdminWorkflowsRouteRoute
   '/spend-requests/$id': typeof MainSpendRequestsIdRouteRoute
+  '/wallets/$id': typeof MainWalletsIdRouteRoute
   '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
   '/spend-requests': typeof MainSpendRequestsIndexRoute
+  '/wallets': typeof MainWalletsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -233,14 +241,15 @@ export interface FileRoutesById {
   '/_main/transactions': typeof MainTransactionsRoute
   '/_main/users': typeof MainUsersRoute
   '/_main/vendors-invoices': typeof MainVendorsInvoicesRoute
-  '/_main/wallets': typeof MainWalletsRoute
   '/_main/workflows': typeof MainWorkflowsRoute
   '/_main/': typeof MainIndexRoute
   '/_main/admin/policies': typeof MainAdminPoliciesRouteRoute
   '/_main/admin/workflows': typeof MainAdminWorkflowsRouteRoute
   '/_main/spend-requests/$id': typeof MainSpendRequestsIdRouteRoute
+  '/_main/wallets/$id': typeof MainWalletsIdRouteRoute
   '/auth/reset-password/$token': typeof AuthResetPasswordTokenRouteRoute
   '/_main/spend-requests/': typeof MainSpendRequestsIndexRoute
+  '/_main/wallets/': typeof MainWalletsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -262,13 +271,14 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/users'
     | '/vendors-invoices'
-    | '/wallets'
     | '/workflows'
     | '/admin/policies'
     | '/admin/workflows'
     | '/spend-requests/$id'
+    | '/wallets/$id'
     | '/auth/reset-password/$token'
     | '/spend-requests/'
+    | '/wallets/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/auth'
@@ -287,14 +297,15 @@ export interface FileRouteTypes {
     | '/transactions'
     | '/users'
     | '/vendors-invoices'
-    | '/wallets'
     | '/workflows'
     | '/'
     | '/admin/policies'
     | '/admin/workflows'
     | '/spend-requests/$id'
+    | '/wallets/$id'
     | '/auth/reset-password/$token'
     | '/spend-requests'
+    | '/wallets'
   id:
     | '__root__'
     | '/auth'
@@ -314,14 +325,15 @@ export interface FileRouteTypes {
     | '/_main/transactions'
     | '/_main/users'
     | '/_main/vendors-invoices'
-    | '/_main/wallets'
     | '/_main/workflows'
     | '/_main/'
     | '/_main/admin/policies'
     | '/_main/admin/workflows'
     | '/_main/spend-requests/$id'
+    | '/_main/wallets/$id'
     | '/auth/reset-password/$token'
     | '/_main/spend-requests/'
+    | '/_main/wallets/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -365,13 +377,6 @@ declare module '@tanstack/react-router' {
       path: '/workflows'
       fullPath: '/workflows'
       preLoaderRoute: typeof MainWorkflowsRouteImport
-      parentRoute: typeof MainRoute
-    }
-    '/_main/wallets': {
-      id: '/_main/wallets'
-      path: '/wallets'
-      fullPath: '/wallets'
-      preLoaderRoute: typeof MainWalletsRouteImport
       parentRoute: typeof MainRoute
     }
     '/_main/vendors-invoices': {
@@ -472,6 +477,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainBudgetsRouteRouteImport
       parentRoute: typeof MainRoute
     }
+    '/_main/wallets/': {
+      id: '/_main/wallets/'
+      path: '/wallets'
+      fullPath: '/wallets/'
+      preLoaderRoute: typeof MainWalletsIndexRouteImport
+      parentRoute: typeof MainRoute
+    }
     '/_main/spend-requests/': {
       id: '/_main/spend-requests/'
       path: '/spend-requests'
@@ -485,6 +497,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/auth/reset-password/$token'
       preLoaderRoute: typeof AuthResetPasswordTokenRouteRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/_main/wallets/$id': {
+      id: '/_main/wallets/$id'
+      path: '/wallets/$id'
+      fullPath: '/wallets/$id'
+      preLoaderRoute: typeof MainWalletsIdRouteRouteImport
+      parentRoute: typeof MainRoute
     }
     '/_main/spend-requests/$id': {
       id: '/_main/spend-requests/$id'
@@ -539,13 +558,14 @@ interface MainRouteChildren {
   MainTransactionsRoute: typeof MainTransactionsRoute
   MainUsersRoute: typeof MainUsersRoute
   MainVendorsInvoicesRoute: typeof MainVendorsInvoicesRoute
-  MainWalletsRoute: typeof MainWalletsRoute
   MainWorkflowsRoute: typeof MainWorkflowsRoute
   MainIndexRoute: typeof MainIndexRoute
   MainAdminPoliciesRouteRoute: typeof MainAdminPoliciesRouteRoute
   MainAdminWorkflowsRouteRoute: typeof MainAdminWorkflowsRouteRoute
   MainSpendRequestsIdRouteRoute: typeof MainSpendRequestsIdRouteRoute
+  MainWalletsIdRouteRoute: typeof MainWalletsIdRouteRoute
   MainSpendRequestsIndexRoute: typeof MainSpendRequestsIndexRoute
+  MainWalletsIndexRoute: typeof MainWalletsIndexRoute
 }
 
 const MainRouteChildren: MainRouteChildren = {
@@ -561,13 +581,14 @@ const MainRouteChildren: MainRouteChildren = {
   MainTransactionsRoute: MainTransactionsRoute,
   MainUsersRoute: MainUsersRoute,
   MainVendorsInvoicesRoute: MainVendorsInvoicesRoute,
-  MainWalletsRoute: MainWalletsRoute,
   MainWorkflowsRoute: MainWorkflowsRoute,
   MainIndexRoute: MainIndexRoute,
   MainAdminPoliciesRouteRoute: MainAdminPoliciesRouteRoute,
   MainAdminWorkflowsRouteRoute: MainAdminWorkflowsRouteRoute,
   MainSpendRequestsIdRouteRoute: MainSpendRequestsIdRouteRoute,
+  MainWalletsIdRouteRoute: MainWalletsIdRouteRoute,
   MainSpendRequestsIndexRoute: MainSpendRequestsIndexRoute,
+  MainWalletsIndexRoute: MainWalletsIndexRoute,
 }
 
 const MainRouteWithChildren = MainRoute._addFileChildren(MainRouteChildren)
