@@ -36,7 +36,7 @@ export function PolicyFormModal({ isOpen, onClose, initialData, onSuccess }: Pol
   const [priority, setPriority] = React.useState('1');
   const [action, setAction] = React.useState('REQUIRE_APPROVAL');
   const [enabled, setEnabled] = React.useState(true);
-  const [conditions, setConditions] = React.useState<Condition[]>([{ field: 'amount', operator: '>', value: '' }]);
+  const [conditions, setConditions] = React.useState<Condition[]>([{ field: 'amount', operator: 'gt', value: '' }]);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -45,13 +45,13 @@ export function PolicyFormModal({ isOpen, onClose, initialData, onSuccess }: Pol
         setPriority(initialData.priority?.toString() || '1');
         setAction(initialData.actions?.[0]?.type || 'REQUIRE_APPROVAL');
         setEnabled(initialData.enabled ?? true);
-        setConditions(initialData.conditions || [{ field: 'amount', operator: '>', value: '' }]);
+        setConditions(initialData.conditions || [{ field: 'amount', operator: 'gt', value: '' }]);
       } else {
         setName('');
         setPriority('1');
         setAction('REQUIRE_APPROVAL');
         setEnabled(true);
-        setConditions([{ field: 'amount', operator: '>', value: '' }]);
+        setConditions([{ field: 'amount', operator: 'gt', value: '' }]);
       }
     }
   }, [isOpen, initialData]);

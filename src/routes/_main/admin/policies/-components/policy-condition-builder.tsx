@@ -2,12 +2,33 @@ import * as React from 'react';
 import * as Select from '@/components/ui/select';
 import * as Input from '@/components/ui/input';
 import * as FancyButton from '@/components/ui/fancy-button';
+import { useQuery } from '@apollo/client/react';
+import { useAtomValue } from 'jotai';
 import { RiAddLine, RiDeleteBinLine } from '@remixicon/react';
+import { currentOrganizationAtom } from '@/store/auth.store';
+import { GET_DEPARTMENTS_QUERY } from '@/graphql/departments.graphql';
+import { GET_CATEGORIES_QUERY } from '@/graphql/categories.graphql';
 
 export interface Condition {
   field: string;
   operator: string;
   value: string;
+}
+
+interface CategoryOption {
+  id: string;
+  key: string;
+  name: string;
+  icon: string | null;
+  iconFamily: string | null;
+  color: string | null;
+  enabled: boolean;
+}
+
+interface DepartmentOption {
+  id: string;
+  name: string;
+  parentId: string | null;
 }
 
 interface PolicyConditionBuilderProps {
@@ -23,25 +44,37 @@ const FIELD_OPTIONS = [
 
 const OPERATORS_FOR_FIELD: Record<string, { value: string; label: string }[]> = {
   amount: [
-    { value: '>', label: 'Greater than' },
-    { value: '<', label: 'Less than' },
-    { value: '>=', label: 'Greater or equal' },
-    { value: '<=', label: 'Less or equal' },
-    { value: '=', label: 'Equals' },
+    { value: 'gt', label: 'Greater than' },
+    { value: 'lt', label: 'Less than' },
+    { value: 'gte', label: 'Greater or equal' },
+    { value: 'lte', label: 'Less or equal' },
+    { value: 'eq', label: 'Equals' },
   ],
   category: [
-    { value: '=', label: 'Equals' },
-    { value: 'in', label: 'In list' },
+    { value: 'eq', label: 'Equals' },
   ],
   departmentId: [
-    { value: '=', label: 'Equals' },
-    { value: 'in', label: 'In list' },
+    { value: 'eq', label: 'Equals' },
   ],
 };
 
 export function PolicyConditionBuilder({ conditions, onChange }: PolicyConditionBuilderProps) {
+  const currentOrganization = useAtomValue(currentOrganizationAtom);
+
+  const { data: categoriesData } = useQuery<{ categories: CategoryOption[] }>(GET_CATEGORIES_QUERY, {
+    variables: { organizationId: currentOrganization?.id },
+    skip: !currentOrganization?.id,
+  });
+  const { data: departmentsData } = useQuery<{ departments: DepartmentOption[] }>(GET_DEPARTMENTS_QUERY, {
+    variables: { organizationId: currentOrganization?.id },
+    skip: !currentOrganization?.id,
+  });
+
+  const categories = categoriesData?.categories ?? [];
+  const departments = departmentsData?.departments ?? [];
+
   const addCondition = () => {
-    onChange([...conditions, { field: 'amount', operator: '>', value: '' }]);
+    onChange([...conditions, { field: 'amount', operator: 'gt', value: '' }]);
   };
 
   const removeCondition = (index: number) => {
@@ -51,7 +84,7 @@ export function PolicyConditionBuilder({ conditions, onChange }: PolicyCondition
   const updateCondition = (index: number, updates: Partial<Condition>) => {
     const newConditions = [...conditions];
     newConditions[index] = { ...newConditions[index], ...updates };
-    
+
     // Reset operator if field changes and current operator is invalid for new field
     if (updates.field) {
       const allowedOperators = OPERATORS_FOR_FIELD[updates.field].map(o => o.value);
@@ -59,8 +92,57 @@ export function PolicyConditionBuilder({ conditions, onChange }: PolicyCondition
         newConditions[index].operator = OPERATORS_FOR_FIELD[updates.field][0].value;
       }
     }
-    
+
     onChange(newConditions);
+  };
+
+  const renderValueEditor = (condition: Condition, idx: number) => {
+    if (condition.field === 'category') {
+      return (
+        <Select.Root value={condition.value} onValueChange={(val) => updateCondition(idx, { value: val })}>
+          <Select.Trigger>
+            <Select.Value placeholder="Select category" />
+          </Select.Trigger>
+          <Select.Content>
+            {categories.map((cat) => (
+              <Select.Item key={cat.key} value={cat.key}>
+                {cat.name}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      );
+    }
+
+    if (condition.field === 'departmentId') {
+      return (
+        <Select.Root value={condition.value} onValueChange={(val) => updateCondition(idx, { value: val })}>
+          <Select.Trigger>
+            <Select.Value placeholder="Select department" />
+          </Select.Trigger>
+          <Select.Content>
+            {departments.map((dept) => (
+              <Select.Item key={dept.id} value={dept.id}>
+                {dept.name}
+              </Select.Item>
+            ))}
+          </Select.Content>
+        </Select.Root>
+      );
+    }
+
+    return (
+      <Input.Root>
+        <Input.Wrapper>
+          <Input.Input
+            value={condition.value}
+            onChange={(e) => updateCondition(idx, { value: e.target.value })}
+            placeholder="e.g. 500"
+            type="number"
+          />
+        </Input.Wrapper>
+      </Input.Root>
+    );
   };
 
   return (
@@ -97,17 +179,7 @@ export function PolicyConditionBuilder({ conditions, onChange }: PolicyCondition
             </Select.Root>
           </div>
 
-          <div className="flex-1">
-            <Input.Root>
-              <Input.Wrapper>
-                <Input.Input
-                  value={condition.value}
-                  onChange={(e) => updateCondition(idx, { value: e.target.value })}
-                  placeholder={condition.field === 'amount' ? 'e.g. 500' : 'Value'}
-                />
-              </Input.Wrapper>
-            </Input.Root>
-          </div>
+          <div className="flex-1">{renderValueEditor(condition, idx)}</div>
 
           <button
             type="button"
