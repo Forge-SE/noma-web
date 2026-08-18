@@ -25,6 +25,7 @@ import { Route as MainHrRouteImport } from './routes/_main/hr'
 import { Route as MainDepartmentsRouteImport } from './routes/_main/departments'
 import { Route as MainAuditLogRouteImport } from './routes/_main/audit-log'
 import { Route as MainApprovalsRouteImport } from './routes/_main/approvals'
+import { Route as MainAnalyticsRouteImport } from './routes/_main/analytics'
 import { Route as AuthLoginRouteRouteImport } from './routes/auth/login/route'
 import { Route as AuthForgotPasswordRouteRouteImport } from './routes/auth/forgot-password/route'
 import { Route as MainBudgetsRouteRouteImport } from './routes/_main/budgets/route'
@@ -115,6 +116,11 @@ const MainApprovalsRoute = MainApprovalsRouteImport.update({
   path: '/approvals',
   getParentRoute: () => MainRoute,
 } as any)
+const MainAnalyticsRoute = MainAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => MainRoute,
+} as any)
 const AuthLoginRouteRoute = AuthLoginRouteRouteImport.update({
   id: '/login',
   path: '/login',
@@ -175,6 +181,7 @@ export interface FileRoutesByFullPath {
   '/budgets': typeof MainBudgetsRouteRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
   '/auth/login': typeof AuthLoginRouteRoute
+  '/analytics': typeof MainAnalyticsRoute
   '/approvals': typeof MainApprovalsRoute
   '/audit-log': typeof MainAuditLogRoute
   '/departments': typeof MainDepartmentsRoute
@@ -201,6 +208,7 @@ export interface FileRoutesByTo {
   '/budgets': typeof MainBudgetsRouteRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
   '/auth/login': typeof AuthLoginRouteRoute
+  '/analytics': typeof MainAnalyticsRoute
   '/approvals': typeof MainApprovalsRoute
   '/audit-log': typeof MainAuditLogRoute
   '/departments': typeof MainDepartmentsRoute
@@ -230,6 +238,7 @@ export interface FileRoutesById {
   '/_main/budgets': typeof MainBudgetsRouteRoute
   '/auth/forgot-password': typeof AuthForgotPasswordRouteRoute
   '/auth/login': typeof AuthLoginRouteRoute
+  '/_main/analytics': typeof MainAnalyticsRoute
   '/_main/approvals': typeof MainApprovalsRoute
   '/_main/audit-log': typeof MainAuditLogRoute
   '/_main/departments': typeof MainDepartmentsRoute
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/budgets'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/analytics'
     | '/approvals'
     | '/audit-log'
     | '/departments'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/budgets'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/analytics'
     | '/approvals'
     | '/audit-log'
     | '/departments'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/_main/budgets'
     | '/auth/forgot-password'
     | '/auth/login'
+    | '/_main/analytics'
     | '/_main/approvals'
     | '/_main/audit-log'
     | '/_main/departments'
@@ -456,6 +468,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MainApprovalsRouteImport
       parentRoute: typeof MainRoute
     }
+    '/_main/analytics': {
+      id: '/_main/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof MainAnalyticsRouteImport
+      parentRoute: typeof MainRoute
+    }
     '/auth/login': {
       id: '/auth/login'
       path: '/login'
@@ -547,6 +566,7 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 
 interface MainRouteChildren {
   MainBudgetsRouteRoute: typeof MainBudgetsRouteRoute
+  MainAnalyticsRoute: typeof MainAnalyticsRoute
   MainApprovalsRoute: typeof MainApprovalsRoute
   MainAuditLogRoute: typeof MainAuditLogRoute
   MainDepartmentsRoute: typeof MainDepartmentsRoute
@@ -570,6 +590,7 @@ interface MainRouteChildren {
 
 const MainRouteChildren: MainRouteChildren = {
   MainBudgetsRouteRoute: MainBudgetsRouteRoute,
+  MainAnalyticsRoute: MainAnalyticsRoute,
   MainApprovalsRoute: MainApprovalsRoute,
   MainAuditLogRoute: MainAuditLogRoute,
   MainDepartmentsRoute: MainDepartmentsRoute,

@@ -25,6 +25,7 @@ import * as Divider from '@/components/ui/divider';
 import * as Table from '@/components/ui/table';
 import * as Avatar from '@/components/ui/avatar';
 import * as Badge from '@/components/ui/badge';
+import * as StatusBadge from '@/components/ui/status-badge';
 import * as Pagination from '@/components/ui/pagination';
 import * as Select from '@/components/ui/select';
 import * as Button from '@/components/ui/button';
@@ -99,19 +100,6 @@ function getActionColor(action: string) {
   if (action.includes('rejected')) return 'red';
   if (action.includes('login') || action.includes('logout')) return 'purple';
   return 'gray';
-}
-
-function getEntityColor(entityType: string) {
-  switch (entityType) {
-    case 'user': return 'blue';
-    case 'department': return 'orange';
-    case 'budget': return 'green';
-    case 'wallet': return 'teal';
-    case 'workflow': return 'purple';
-    case 'policy': return 'sky';
-    case 'spend_request': return 'pink';
-    default: return 'gray';
-  }
 }
 
 function MetadataCell({ metadata }: { metadata: Record<string, unknown> | null }) {
@@ -220,7 +208,8 @@ export function AuditLogPage() {
       id: 'action',
       header: () => <span className='text-label-xs font-semibold text-text-sub-600'>Action</span>,
       cell: ({ row }) => (
-        <Badge.Root variant='light' color={getActionColor(row.original.action)}>
+        <Badge.Root variant='lighter' color={getActionColor(row.original.action)} size='medium'>
+          <Badge.Dot />
           {formatAction(row.original.action)}
         </Badge.Root>
       ),
@@ -230,9 +219,9 @@ export function AuditLogPage() {
       header: () => <span className='text-label-xs font-semibold text-text-sub-600'>Entity</span>,
       cell: ({ row }) => (
         <div className='flex items-center gap-2'>
-          <Badge.Root variant='stroke' color={getEntityColor(row.original.entityType)}>
+          <StatusBadge.Root variant='stroke'>
             {row.original.entityType}
-          </Badge.Root>
+          </StatusBadge.Root>
         </div>
       ),
     },

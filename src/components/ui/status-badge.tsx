@@ -14,7 +14,7 @@ const STATUS_BADGE_DOT_NAME = 'StatusBadgeDot';
 export const statusBadgeVariants = tv({
   slots: {
     root: [
-      'inline-flex h-6 items-center justify-center gap-2 whitespace-nowrap rounded-md px-2 text-label-xs',
+      'inline-flex h-6 items-center justify-center gap-2 whitespace-nowrap rounded-full px-2 text-label-xs',
       'has-[>.dot]:gap-1.5',
     ],
     icon: '-mx-1 size-4',

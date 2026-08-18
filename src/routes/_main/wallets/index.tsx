@@ -13,7 +13,6 @@ import {
   RiArrowRightSLine,
   RiArrowLeftDoubleLine,
   RiArrowRightDoubleLine,
-  RiSubtractLine,
   RiEyeLine,
   RiEditLine,
   RiExpandDiagonal2Line,
@@ -203,7 +202,7 @@ function WalletsPage() {
       ),
       cell: ({ row }) => (
         <span className='text-paragraph-sm font-medium text-text-strong-950'>
-          {formatMoney(row.original.balance, 'GHS')}
+          {formatMoney(row.original.balance)}
         </span>
       ),
       meta: { className: 'text-right' },
@@ -218,7 +217,7 @@ function WalletsPage() {
         if (isAbsent) {
           return (
             <Badge.Root variant='lighter' color={getWalletStatusColor(status)} size='medium'>
-              <Badge.Icon as={RiSubtractLine} />
+              <Badge.Dot />
               {status}
             </Badge.Root>
           );

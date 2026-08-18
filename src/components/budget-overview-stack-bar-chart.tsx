@@ -69,8 +69,10 @@ export function BudgetOverviewChart({ data }: { data: any }) {
 
                 const isFirst = i === 0;
                 const isLast = i === Object.keys(chartConfig).length - 1;
-                const computedHeight =
-                  isLast || isFirst ? height! - GAP / 2 : height! - GAP;
+                const computedHeight = Math.max(
+                  0,
+                  isLast || isFirst ? height! - GAP / 2 : height! - GAP,
+                );
 
                 return (
                   <>
@@ -80,7 +82,7 @@ export function BudgetOverviewChart({ data }: { data: any }) {
                         x={x}
                         y={0}
                         width={width}
-                        height={y - GAP}
+                        height={Math.max(0, y - GAP)}
                       />
                     )}
                     <rect

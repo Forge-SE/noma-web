@@ -2,12 +2,25 @@ import { createFileRoute } from '@tanstack/react-router';
 import { useQuery } from '@apollo/client/react';
 import { useAtomValue } from 'jotai';
 import { sessionAtom } from '@/store/auth.store';
-import { GET_SPEND_REQUESTS } from '@/graphql/requests.graphql';
+import { GET_ORG_SPEND_REQUESTS } from '@/graphql/requests.graphql';
 import { RiFilePaperLine } from '@remixicon/react';
 
 import Header from '@/components/header';
 import * as Divider from '@/components/ui/divider';
 import { SpendRequestsTable } from './-components/spend-requests-table';
+
+interface OrgSpendRequest {
+  id: string;
+  amount: number;
+  currency: string;
+  category: string;
+  purpose: string;
+  status: string;
+  submittedAt: string | null;
+  createdAt: string;
+  department?: { id: string; name: string } | null;
+  wallet?: { id: string; name: string; type: string } | null;
+}
 
 export const Route = createFileRoute('/_main/spend-requests/')({
   component: SpendRequestsPage,
@@ -15,12 +28,15 @@ export const Route = createFileRoute('/_main/spend-requests/')({
 
 function SpendRequestsPage() {
   const session = useAtomValue(sessionAtom);
-  const { data, loading, refetch } = useQuery(GET_SPEND_REQUESTS, {
-    variables: { userId: session?.userId },
-    skip: !session?.userId,
-  });
+  const { data, loading } = useQuery<{ spendRequestsByOrganization: OrgSpendRequest[] }>(
+    GET_ORG_SPEND_REQUESTS,
+    {
+      variables: { organizationId: session?.organizationId },
+      skip: !session?.organizationId,
+    },
+  );
 
-  const spendRequests = (data as any)?.spendRequests || [];
+  const spendRequests = data?.spendRequestsByOrganization || [];
 
   return (
     <>

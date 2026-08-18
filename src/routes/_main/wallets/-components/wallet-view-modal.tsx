@@ -62,7 +62,7 @@ export function WalletViewModal({ isOpen, onClose, wallet }: WalletViewModalProp
             <Divider.Root />
             <DetailRow label='Balance'>
               <span className='text-paragraph-sm font-medium text-text-strong-950'>
-                {formatMoney(wallet?.balance || 0, 'GHS')}
+                {formatMoney(wallet?.balance || 0)}
               </span>
             </DetailRow>
             <Divider.Root />

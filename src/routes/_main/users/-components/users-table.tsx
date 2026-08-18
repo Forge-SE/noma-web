@@ -13,7 +13,6 @@ import {
   RiArrowRightSLine,
   RiArrowLeftDoubleLine,
   RiArrowRightDoubleLine,
-  RiSubtractLine,
 } from '@remixicon/react';
 import {
   flexRender,
@@ -240,7 +239,7 @@ export function UsersTable({
         if (isAbsent) {
           return (
             <Badge.Root variant="lighter" color="gray" size="medium">
-              <Badge.Icon as={RiSubtractLine} />
+              <Badge.Dot />
               {status}
             </Badge.Root>
           );

@@ -17,6 +17,8 @@ import {
   authLoadingAtom,
   type SessionInfo,
 } from '@/store/auth.store';
+import { APOLLO_UNAUTHORIZED_EVENT } from '@/lib/apollo-error-link';
+import { router } from '@/router';
 
 // ── Context ─────────────────────────────────────────────────────
 
@@ -75,7 +77,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch {
         // Not authenticated or token expired — try refresh
         try {
-          const { data: refreshData } = await refreshMutation({
+          await refreshMutation({
             variables: { refreshToken: '' }, // server reads from cookie
           });
           if (cancelled) return;
@@ -129,6 +131,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setCurrentOrg(null);
     await client.clearStore();
   }, [logoutMutation, setSession, setCurrentUser, setCurrentOrg, client]);
+
+  // Force sign-out the moment the server tells us a request was unauthenticated.
+  // Catches expired/revoked access tokens at any point in the app.
+  React.useEffect(() => {
+    const handleUnauthorized = () => {
+      setSession(null);
+      setCurrentUser(null);
+      setCurrentOrg(null);
+      void client.clearStore();
+      void router.navigate({ to: '/auth/login' });
+    };
+    window.addEventListener(APOLLO_UNAUTHORIZED_EVENT, handleUnauthorized);
+    return () => window.removeEventListener(APOLLO_UNAUTHORIZED_EVENT, handleUnauthorized);
+  }, [setSession, setCurrentUser, setCurrentOrg, client]);
 
   const value = React.useMemo(
     () => ({ login, logout, isBootstrapping }),

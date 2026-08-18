@@ -173,8 +173,16 @@ export function PoliciesTable({ data, isLoading, onView, onEdit, onDelete, onCre
       header: 'Action',
       cell: ({ row }) => {
         const actionType = row.original.actions?.[0]?.type;
+        const actionStatus: 'completed' | 'failed' | 'pending' | 'disabled' =
+          actionType === 'BLOCK'
+            ? 'failed'
+            : actionType === 'AUTO_APPROVE'
+              ? 'completed'
+              : actionType === 'REQUIRE_APPROVAL'
+                ? 'pending'
+                : 'disabled';
         return (
-          <StatusBadge.Root variant="stroke">
+          <StatusBadge.Root variant="stroke" status={actionStatus}>
             {(actionType || 'UNKNOWN').replace(/_/g, ' ')}
           </StatusBadge.Root>
         );

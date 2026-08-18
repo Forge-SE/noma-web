@@ -3,7 +3,7 @@ import { format } from 'date-fns';
 import { RiGitBranchLine } from '@remixicon/react';
 
 import * as Modal from '@/components/ui/modal';
-import * as Badge from '@/components/ui/badge';
+import * as StatusBadge from '@/components/ui/status-badge';
 import * as Divider from '@/components/ui/divider';
 import * as FancyButton from '@/components/ui/fancy-button';
 
@@ -16,11 +16,11 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
   );
 }
 
-const ACTION_BADGE_COLORS: Record<string, 'blue' | 'orange' | 'green' | 'red'> = {
-  APPROVE: 'green',
-  REJECT: 'red',
-  REVIEW: 'orange',
-  NOTIFY: 'blue',
+const ACTION_STATUS: Record<string, 'completed' | 'failed' | 'pending' | 'disabled'> = {
+  APPROVE: 'completed',
+  REJECT: 'failed',
+  REVIEW: 'pending',
+  NOTIFY: 'disabled',
 };
 
 interface WorkflowViewModalProps {
@@ -61,12 +61,12 @@ export function WorkflowViewModal({ isOpen, onClose, workflow, onEdit }: Workflo
                         <span className="text-paragraph-xs text-text-soft-400 tabular-nums">
                           #{step.stepOrder}
                         </span>
-                        <Badge.Root
+                        <StatusBadge.Root
                           variant="stroke"
-                          color={ACTION_BADGE_COLORS[step.action] || 'gray'}
+                          status={ACTION_STATUS[step.action] || 'disabled'}
                         >
                           {step.action}
-                        </Badge.Root>
+                        </StatusBadge.Root>
                         <span className="text-paragraph-xs text-text-sub-600">
                           {step.assigneeRole}
                         </span>

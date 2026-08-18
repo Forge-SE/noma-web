@@ -1,6 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { ToastProvider } from '@/components/ui/toaster';
+import { ApolloErrorToaster } from '@/components/ui/apollo-error-toaster';
 
 export const Route = createRootRoute({
   component: RootComponent,
@@ -9,10 +9,8 @@ export const Route = createRootRoute({
 function RootComponent() {
   return (
     <ToastProvider>
+      <ApolloErrorToaster />
       <Outlet />
-      {/* {import.meta.env.DEV ? (
-        <TanStackRouterDevtools position='bottom-right' />
-      ) : null} */}
     </ToastProvider>
   );
 }

@@ -24,6 +24,30 @@ export const GET_SPEND_REQUESTS = gql`
   }
 `;
 
+export const GET_ORG_SPEND_REQUESTS = gql`
+  query GetOrgSpendRequests($organizationId: ID!) {
+    spendRequestsByOrganization(organizationId: $organizationId) {
+      id
+      amount
+      currency
+      category
+      purpose
+      status
+      submittedAt
+      createdAt
+      department {
+        id
+        name
+      }
+      wallet {
+        id
+        name
+        type
+      }
+    }
+  }
+`;
+
 export const GET_SPEND_REQUEST_DETAIL = gql`
   query GetSpendRequestDetail($id: ID!) {
     spendRequest(id: $id) {
@@ -38,8 +62,8 @@ export const GET_SPEND_REQUEST_DETAIL = gql`
       createdAt
       requester {
         id
-        firstName
-        lastName
+        name
+        email
       }
       department {
         id
@@ -93,6 +117,74 @@ export const GET_SPEND_REQUEST_DETAIL = gql`
   }
 `;
 
+export const PENDING_APPROVALS = gql`
+  query PendingApprovals($approverId: ID!) {
+    pendingApprovals(approverId: $approverId) {
+      id
+      amount
+      currency
+      category
+      purpose
+      status
+      submittedAt
+      createdAt
+      requester {
+        id
+        name
+      }
+      department {
+        id
+        name
+      }
+      workflowInstance {
+        id
+        status
+        currentStep
+        template {
+          steps {
+            stepOrder
+            assigneeRole
+          }
+        }
+      }
+    }
+  }
+`;
+
+export const PENDING_APPROVALS_BY_ORG = gql`
+  query PendingApprovalsByOrg($organizationId: ID!) {
+    pendingApprovalsByOrganization(organizationId: $organizationId) {
+      id
+      amount
+      currency
+      category
+      purpose
+      status
+      submittedAt
+      createdAt
+      requester {
+        id
+        name
+      }
+      department {
+        id
+        name
+      }
+      workflowInstance {
+        id
+        status
+        currentStep
+        template {
+          steps {
+            stepOrder
+            assigneeRole
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const APPROVE_SPEND_REQUEST = gql`
   mutation ApproveSpendRequest($instanceId: ID!, $comment: String) {
     processWorkflowApproval(instanceId: $instanceId, action: APPROVED, comment: $comment)
@@ -116,10 +208,12 @@ export const ESCALATE_WORKFLOW_INSTANCE = gql`
 `;
 
 export const RETRY_DISBURSEMENT = gql`
-  mutation RetryDisbursement($id: ID!) {
-    retryDisbursement(id: $id) {
+  mutation RetryDisbursement($input: RetryDisbursementInput!) {
+    retryDisbursement(input: $input) {
       id
       status
+      providerReference
+      failureReason
     }
   }
 `;

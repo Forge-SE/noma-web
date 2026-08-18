@@ -10,6 +10,7 @@ import {
   RiCheckLine,
   RiCloseLine,
   RiArrowUpLine,
+  RiTimeFill,
 } from '@remixicon/react';
 
 import Header from '@/components/header';
@@ -32,7 +33,9 @@ import {
   APPROVE_SPEND_REQUEST,
   REJECT_SPEND_REQUEST,
   ESCALATE_WORKFLOW_INSTANCE,
+  RETRY_DISBURSEMENT,
 } from '@/graphql/requests.graphql';
+import { GET_USERS_QUERY } from '@/graphql/users.graphql';
 
 import { BudgetImpactPanel } from './-components/budget-impact-panel';
 import { WorkflowPanel } from './-components/workflow-panel';
@@ -64,6 +67,26 @@ function getStatusLabel(status: string): string {
   return status.replace(/_/g, ' ');
 }
 
+function statusToBadgeColor(
+  status: 'completed' | 'pending' | 'failed' | 'disabled',
+): 'green' | 'orange' | 'red' | 'gray' {
+  switch (status) {
+    case 'completed':
+      return 'green';
+    case 'pending':
+      return 'orange';
+    case 'failed':
+      return 'red';
+    default:
+      return 'gray';
+  }
+}
+
+interface OrgUser {
+  id: string;
+  name: string;
+}
+
 /* ── Page ────────────────────────────────────────────── */
 
 function SpendRequestDetailPage() {
@@ -80,10 +103,24 @@ function SpendRequestDetailPage() {
   const { data, loading, refetch } = useQuery(GET_SPEND_REQUEST_DETAIL, {
     variables: { id },
   });
+  const currentPaymentStatus = (data as any)?.spendRequest?.paymentTransaction?.status;
+  const isPaymentInFlight = currentPaymentStatus === 'PENDING' || currentPaymentStatus === 'PROCESSING';
+  React.useEffect(() => {
+    if (!isPaymentInFlight) return;
+    const timer = setInterval(() => refetch(), 5000);
+    return () => clearInterval(timer);
+  }, [isPaymentInFlight, refetch]);
 
   const [approveRequest, { loading: approving }] = useMutation(APPROVE_SPEND_REQUEST);
   const [rejectRequest, { loading: rejecting }] = useMutation(REJECT_SPEND_REQUEST);
   const [escalateInstance, { loading: escalating }] = useMutation(ESCALATE_WORKFLOW_INSTANCE);
+  const [retryDisbursement, { loading: retrying }] = useMutation(RETRY_DISBURSEMENT);
+
+  const { data: orgUsersData } = useQuery<{ users: OrgUser[] }>(GET_USERS_QUERY, {
+    variables: { organizationId: session?.organizationId },
+    skip: !session?.organizationId,
+  });
+  const orgUsers = orgUsersData?.users || [];
 
   const request = (data as any)?.spendRequest;
 
@@ -97,11 +134,12 @@ function SpendRequestDetailPage() {
   }
 
   const requester = request.requester;
-  const requesterName = requester
-    ? `${requester.firstName} ${requester.lastName}`
-    : 'Unknown User';
-  const requesterInitials = requester
-    ? `${requester.firstName?.[0] || ''}${requester.lastName?.[0] || ''}`
+  const requesterName = requester?.name ?? 'Unknown User';
+  const requesterInitials = requester?.name
+    ? requester.name
+        .split(' ')
+        .map((part: string) => part[0])
+        .join('')
     : '?';
 
   const workflowInstance = request.workflowInstance;
@@ -109,6 +147,10 @@ function SpendRequestDetailPage() {
   const isPendingApprover =
     isUnderReview &&
     workflowInstance?.pendingApproverId === session?.userId;
+  const canAct =
+    isUnderReview &&
+    workflowInstance &&
+    (isPendingApprover || session?.role === 'ADMIN' || session?.role === 'FINANCE');
 
   /* ── Actions ─────────────────────────────────────── */
 
@@ -192,7 +234,7 @@ function SpendRequestDetailPage() {
             </Avatar.Root>
             <div>
               <p className='text-title-h4 font-semibold text-text-strong-950'>
-                {formatMoney(request.amount, request.currency)}
+                {formatMoney(request.amount)}
               </p>
               <p className='text-paragraph-sm text-text-sub-600'>
                 Requested by <span className='font-medium'>{requesterName}</span>
@@ -200,14 +242,19 @@ function SpendRequestDetailPage() {
             </div>
           </div>
           <div className='flex items-center gap-3'>
-            <StatusBadge.Root status={mapRequestStatus(request.status)} variant='light'>
-              <StatusBadge.Dot />
+            <Badge.Root
+              variant='lighter'
+              color={statusToBadgeColor(mapRequestStatus(request.status))}
+              size='medium'
+            >
+              <Badge.Dot />
               {getStatusLabel(request.status)}
-            </StatusBadge.Root>
+            </Badge.Root>
             {isUnderReview && workflowInstance && (
-              <Badge.Root variant='light' color={isPendingApprover ? 'orange' : 'gray'}>
+              <StatusBadge.Root variant='stroke' status={isPendingApprover ? 'pending' : 'disabled'}>
+                <StatusBadge.Icon as={RiTimeFill} />
                 {isPendingApprover ? 'Waiting on you' : 'Waiting on approver'}
-              </Badge.Root>
+              </StatusBadge.Root>
             )}
           </div>
         </div>
@@ -242,9 +289,9 @@ function SpendRequestDetailPage() {
                       {request.wallet?.name || '—'}
                     </span>
                     {request.wallet?.type && (
-                      <Badge.Root variant='light' color='blue'>
+                      <StatusBadge.Root variant='stroke'>
                         {request.wallet.type}
-                      </Badge.Root>
+                      </StatusBadge.Root>
                     )}
                   </div>
                 </DetailField>
@@ -276,9 +323,22 @@ function SpendRequestDetailPage() {
               (request.status === 'APPROVED' || request.status === 'DISBURSED') && (
                 <PaymentStatusPanel
                   paymentTransaction={request.paymentTransaction}
-                  isFinanceManager={false}
-                  onRetryDisbursement={() => {
-                    // TODO: wire up retry disbursement mutation
+                  isFinanceManager={session?.role === 'FINANCE' || session?.role === 'ADMIN'}
+                  retrying={retrying}
+                  onRetryDisbursement={async () => {
+                    try {
+                      await retryDisbursement({
+                        variables: {
+                          input: {
+                            paymentTransactionId: request.paymentTransaction.id,
+                          },
+                        },
+                      });
+                      toast({ title: 'Disbursement retried', description: 'The disbursement has been re-submitted for processing.' });
+                      refetch();
+                    } catch (e: any) {
+                      toast({ title: 'Retry failed', description: e.message });
+                    }
                   }}
                 />
               )}
@@ -287,14 +347,14 @@ function SpendRequestDetailPage() {
           {/* Right column — workflow + actions */}
           <div className='flex flex-col gap-6'>
             {/* Approval Actions */}
-            {isPendingApprover && workflowInstance && (
+            {canAct && (
               <div className='rounded-xl border border-stroke-soft-200 bg-bg-white-0 p-5'>
                 <h3 className='text-label-sm font-semibold text-text-strong-950 mb-4'>
                   Your Action Required
                 </h3>
 
                 <Textarea.Root 
-                  className='mb-3'
+                  className='mb-5'
                   placeholder='Add a comment (optional for approval)...'
                   value={approveComment}
                   onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setApproveComment(e.target.value)}
@@ -369,7 +429,7 @@ function SpendRequestDetailPage() {
               Cancel
             </Button.Root>
             <Button.Root
-              variant='destructive'
+              variant='error'
               onClick={handleReject}
               disabled={rejecting || !rejectComment.trim()}
             >
@@ -394,9 +454,18 @@ function SpendRequestDetailPage() {
                 <Select.Value placeholder='Select approver...' />
               </Select.Trigger>
               <Select.Content>
-                <Select.Item value='placeholder'>
-                  Organization users (coming soon)
-                </Select.Item>
+                {orgUsers.length > 0 ? (
+                  orgUsers.map((user) => (
+                    <Select.Item key={user.id} value={user.id}>
+                      {user.name}
+                      {user.id === workflowInstance?.pendingApproverId ? ' (current)' : ''}
+                    </Select.Item>
+                  ))
+                ) : (
+                  <Select.Item value='placeholder'>
+                    Organization users (coming soon)
+                  </Select.Item>
+                )}
               </Select.Content>
             </Select.Root>
           </Modal.Body>

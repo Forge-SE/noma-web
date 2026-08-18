@@ -136,7 +136,7 @@ function WalletCard({
 
         <div className='mt-auto flex flex-col gap-1'>
           <div className='text-paragraph-sm text-text-sub-600'>{name}</div>
-          <div className='text-title-h4'>{formatMoney(balance, 'GHS')}</div>
+          <div className='text-title-h4'>{formatMoney(balance)}</div>
         </div>
 
         <SVGCardBg className='absolute right-0 top-0' />
@@ -320,7 +320,7 @@ function WalletDetailPage() {
             'text-paragraph-sm font-medium',
             dir === 'CREDIT' ? 'text-success-base' : 'text-error-base',
           )}>
-            {dir === 'CREDIT' ? '+' : '-'}{formatMoney(amount, 'GHS')}
+            {dir === 'CREDIT' ? '+' : '-'}{formatMoney(amount)}
           </span>
         );
       },
@@ -403,7 +403,7 @@ function WalletDetailPage() {
           </div>
         }
         title={wallet.name}
-        description={`${wallet.type} · ${formatMoney(wallet.balance, 'GHS')}`}
+        description={`${wallet.type} · ${formatMoney(wallet.balance)}`}
       >
         <StatusBadge.Root variant='stroke'>
           {wallet.status === 'ACTIVE' ? (

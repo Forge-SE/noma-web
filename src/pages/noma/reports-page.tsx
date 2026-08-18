@@ -207,7 +207,7 @@ export function ReportsPage() {
       header: () => <span className="text-label-xs font-semibold text-text-sub-600">Amount</span>,
       cell: ({ row }) => (
         <span className="text-paragraph-sm font-medium text-text-strong-950">
-          {formatMoney(row.original.amount, row.original.currency || 'GHS')}
+          {formatMoney(row.original.amount)}
         </span>
       ),
     },
@@ -217,7 +217,8 @@ export function ReportsPage() {
       cell: ({ row }) => {
         const status = row.original.status;
         return (
-          <Badge.Root variant="filled" color={STATUS_BADGE_COLORS[status] || 'gray'}>
+          <Badge.Root variant="lighter" color={STATUS_BADGE_COLORS[status] || 'gray'} size="medium">
+            <Badge.Dot />
             {status?.replace(/_/g, ' ') || '—'}
           </Badge.Root>
         );
@@ -327,7 +328,7 @@ export function ReportsPage() {
         </div>
 
         {/* Summary Cards */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4">
           <SummaryCard
             label="Total Spend"
             value={summary.totalSpend != null ? formatMoney(summary.totalSpend) : '—'}

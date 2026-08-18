@@ -6,10 +6,10 @@ import {
   RiArrowLeftRightLine,
   RiArrowRightSLine,
   RiBankCardLine,
+  RiBarChart2Line,
   RiBarChartBoxLine,
   RiBuildingLine,
   RiCheckboxCircleLine,
-  RiExchangeLine,
   RiFileChartLine,
   RiFilePaperLine,
   RiFundsLine,
@@ -56,6 +56,7 @@ export const nomaLinks: NavigationLink[] = [
 ];
 
 export const moneyLinks: NavigationLink[] = [
+  { icon: RiBarChart2Line, label: 'Analytics', href: '/analytics' },
   { icon: RiWalletLine, label: 'Wallets', href: '/wallets' },
   { icon: RiFundsLine, label: 'Budgets', href: '/budgets' },
   { icon: RiFileChartLine, label: 'Reports & Export', href: '/reports' },

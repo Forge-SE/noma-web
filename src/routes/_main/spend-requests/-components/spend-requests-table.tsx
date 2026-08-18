@@ -192,7 +192,7 @@ export function SpendRequestsTable({ data, isLoading }: SpendRequestsTableProps)
       header: 'Amount',
       cell: ({ row }) => (
         <div className='text-paragraph-sm text-text-strong-950'>
-          {formatMoney(row.original.amount, row.original.currency || 'GHS')}
+          {formatMoney(row.original.amount)}
         </div>
       ),
     },

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { formatDistanceToNow } from 'date-fns';
-import { RiTeamLine } from '@remixicon/react';
+import { RiTeamLine, RiCheckLine, RiTimeFill, RiCloseLine } from '@remixicon/react';
 
 import * as Modal from '@/components/ui/modal';
-import * as Badge from '@/components/ui/badge';
+import * as StatusBadge from '@/components/ui/status-badge';
 import * as Divider from '@/components/ui/divider';
 import * as FancyButton from '@/components/ui/fancy-button';
 import { type User } from './users-table';
@@ -28,7 +28,13 @@ export function UserViewModal({ isOpen, onClose, user, onEdit }: UserViewModalPr
   const isActive = user?.status === 'ACTIVE';
   const isPending = user?.status === 'PENDING' || user?.status === 'INVITED';
 
-  const statusColor = isActive ? 'green' as const : isPending ? 'orange' as const : 'gray' as const;
+  const statusKey: 'completed' | 'pending' | 'disabled' = isActive
+    ? 'completed'
+    : isPending
+      ? 'pending'
+      : 'disabled';
+
+  const statusIcon = isActive ? RiCheckLine : isPending ? RiTimeFill : RiCloseLine;
 
   return (
     <Modal.Root open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -56,9 +62,9 @@ export function UserViewModal({ isOpen, onClose, user, onEdit }: UserViewModalPr
               <div className="flex flex-wrap gap-1 justify-end">
                 {user?.roles?.length ? (
                   user.roles.map((role: string) => (
-                    <Badge.Root key={role} variant="stroke" color="gray">
+                    <StatusBadge.Root key={role} variant="stroke">
                       {role}
-                    </Badge.Root>
+                    </StatusBadge.Root>
                   ))
                 ) : (
                   <span className="text-paragraph-sm text-text-sub-600">—</span>
@@ -73,9 +79,10 @@ export function UserViewModal({ isOpen, onClose, user, onEdit }: UserViewModalPr
             </DetailRow>
             <Divider.Root />
             <DetailRow label="Status">
-              <Badge.Root variant="stroke" color={statusColor}>
+              <StatusBadge.Root variant="stroke" status={statusKey}>
+                <StatusBadge.Icon as={statusIcon} />
                 {user?.status || '—'}
-              </Badge.Root>
+              </StatusBadge.Root>
             </DetailRow>
             <Divider.Root />
             <DetailRow label="Last Active">

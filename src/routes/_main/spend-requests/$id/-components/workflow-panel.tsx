@@ -1,8 +1,8 @@
 import * as React from 'react';
-import { formatDistanceToNow, format } from 'date-fns';
-import { RiTimeLine, RiAlertLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
+import { format } from 'date-fns';
+import { RiTimeLine, RiAlertLine, RiCheckLine, RiCloseLine, RiCircleLine } from '@remixicon/react';
 
-import * as VerticalStepper from '@/components/ui/vertical-stepper';
+import { cn } from '@/utils/cn';
 
 interface WorkflowStep {
   id: string;
@@ -55,13 +55,6 @@ export function WorkflowPanel({ workflowInstance }: WorkflowPanelProps) {
   const getApprovalForStep = (step: WorkflowStep) =>
     approvals.find((a) => a.stepId === step.id);
 
-  const getStepState = (step: WorkflowStep): 'completed' | 'active' | 'default' => {
-    const approval = getApprovalForStep(step);
-    if (approval) return 'completed';
-    if (step.stepOrder === currentStep) return 'active';
-    return 'default';
-  };
-
   return (
     <div className='rounded-xl border border-stroke-soft-200 bg-bg-white-0 p-5'>
       <h3 className='text-label-sm font-semibold text-text-strong-950 mb-1'>
@@ -71,73 +64,79 @@ export function WorkflowPanel({ workflowInstance }: WorkflowPanelProps) {
         {template.name}
       </p>
 
-      <VerticalStepper.Root>
-        {steps.map((step) => {
-          const state = getStepState(step);
+      <div className='flex flex-col gap-6'>
+        {steps.map((step, index) => {
           const approval = getApprovalForStep(step);
+          const isCompleted = Boolean(approval);
+          const isActive = step.stepOrder === currentStep;
+          const isLast = index === steps.length - 1;
+          const isRejected = approval?.action === 'REJECTED';
+
+          const NodeIcon = isCompleted
+            ? isRejected
+              ? RiCloseLine
+              : RiCheckLine
+            : isActive
+              ? RiTimeLine
+              : RiCircleLine;
+          const nodeColor = isCompleted
+            ? isRejected
+              ? 'text-error-base'
+              : 'text-success-base'
+            : isActive
+              ? 'text-warning-base'
+              : 'text-text-soft-400';
 
           return (
-            <VerticalStepper.Item key={step.id} state={state}>
-              <VerticalStepper.ItemIndicator>
-                {step.stepOrder}
-              </VerticalStepper.ItemIndicator>
+            <div key={step.id} className='relative flex items-start gap-4'>
+              {/* line */}
+              {!isLast && (
+                <div className='absolute -bottom-4 left-3.5 top-9 w-px bg-stroke-soft-200' />
+              )}
+
+              {/* node */}
+              <div className='flex size-7 shrink-0 items-center justify-center rounded-full bg-bg-white-0 shadow-regular-xs ring-1 ring-inset ring-stroke-soft-200'>
+                <NodeIcon className={cn('size-4', nodeColor)} />
+              </div>
+
+              {/* content */}
               <div className='flex-1'>
-                <div className='flex items-center justify-between gap-2'>
-                  <span className='text-paragraph-sm font-medium'>
+                <div className='flex items-center justify-between gap-1.5'>
+                  <div className='text-label-sm text-text-strong-950'>
                     {step.assigneeRole}
-                  </span>
-                  {state === 'completed' && approval && (
-                    <span className={`inline-flex items-center gap-1 text-paragraph-xs ${
-                      approval.action === 'APPROVED' ? 'text-success-base' : 'text-error-base'
-                    }`}>
-                      {approval.action === 'APPROVED' ? (
-                        <RiCheckLine className='size-3.5' />
-                      ) : (
-                        <RiCloseLine className='size-3.5' />
-                      )}
-                      {approval.action}
-                    </span>
-                  )}
-                  {state === 'active' && timePending && timePending > ESCALATION_THRESHOLD && (
-                    <span className='inline-flex items-center gap-1 text-paragraph-xs text-warning-base'>
-                      <RiTimeLine className='size-3.5' />
-                      Pending {formatTimePending(timePending)}
-                    </span>
-                  )}
+                  </div>
+                  <div className='text-right text-subheading-2xs uppercase text-text-soft-400'>
+                    {isCompleted && approval
+                      ? format(new Date(approval.createdAt), 'MMM d')
+                      : `Step ${step.stepOrder}`}
+                  </div>
                 </div>
 
-                {/* Approval details for completed steps */}
-                {state === 'completed' && approval && (
-                  <div className='mt-1'>
-                    {approval.comment && (
-                      <p className='text-paragraph-xs text-text-sub-600 italic'>
-                        "{approval.comment}"
-                      </p>
-                    )}
-                    <p className='text-paragraph-xs text-text-sub-600 mt-0.5'>
-                      {format(new Date(approval.createdAt), 'MMM d, yyyy · h:mm a')}
-                    </p>
+                <div className='mt-1 text-paragraph-xs text-text-sub-600'>
+                  {isCompleted && approval
+                    ? approval.action === 'APPROVED'
+                      ? 'Approved'
+                      : 'Rejected'
+                    : isActive
+                      ? 'Awaiting approval'
+                      : 'Upcoming'}
+                </div>
+
+                {(isCompleted && approval?.comment) ||
+                (isActive && timePending && timePending > ESCALATION_THRESHOLD) ? (
+                  <div className='mt-1 text-label-xs text-text-sub-600'>
+                    {isCompleted && approval?.comment
+                      ? `"${approval.comment}"`
+                      : isActive && timePending && timePending > ESCALATION_THRESHOLD
+                        ? `Pending ${formatTimePending(timePending)}`
+                        : null}
                   </div>
-                )}
-
-                {/* Current step info */}
-                {state === 'active' && (
-                  <p className='text-paragraph-xs text-text-sub-600 mt-1'>
-                    Awaiting {step.action.toLowerCase()} from <span className='font-medium'>{step.assigneeRole}</span>
-                  </p>
-                )}
-
-                {/* Future step info */}
-                {state === 'default' && (
-                  <p className='text-paragraph-xs text-text-soft-400 mt-1'>
-                    {step.assigneeRole} · {step.action}
-                  </p>
-                )}
+                ) : null}
               </div>
-            </VerticalStepper.Item>
+            </div>
           );
         })}
-      </VerticalStepper.Root>
+      </div>
 
       {/* Escalation banner */}
       {escalatedAt && (

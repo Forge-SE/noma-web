@@ -7,13 +7,12 @@ interface BudgetImpactPanelProps {
     totalBudget: number;
     spent: number;
     requestAmount: number;
-    currency: string;
   };
   departmentName: string;
 }
 
 export function BudgetImpactPanel({ budgetImpact, departmentName }: BudgetImpactPanelProps) {
-  const { totalBudget, spent, requestAmount, currency } = budgetImpact;
+  const { totalBudget, spent, requestAmount } = budgetImpact;
   const currentPercent = Math.round((spent / totalBudget) * 100);
   const projectedPercent = Math.round(((spent + requestAmount) / totalBudget) * 100);
 
@@ -46,10 +45,10 @@ export function BudgetImpactPanel({ budgetImpact, departmentName }: BudgetImpact
         </div>
         <div className='text-right'>
           <p className='text-label-sm font-semibold text-text-strong-950'>
-            {formatMoney(spent + requestAmount, currency)}
+            {formatMoney(spent + requestAmount)}
           </p>
           <p className='text-paragraph-xs text-text-sub-600'>
-            of {formatMoney(totalBudget, currency)}
+            of {formatMoney(totalBudget)}
           </p>
         </div>
       </div>
@@ -82,18 +81,18 @@ export function BudgetImpactPanel({ budgetImpact, departmentName }: BudgetImpact
       <div className='mt-4 flex items-center gap-4 border-t border-stroke-soft-200 pt-3'>
         <div className='flex-1'>
           <p className='text-paragraph-xs text-text-sub-600'>Already spent</p>
-          <p className='text-label-xs font-medium text-text-strong-950'>{formatMoney(spent, currency)}</p>
+          <p className='text-label-xs font-medium text-text-strong-950'>{formatMoney(spent)}</p>
         </div>
         <div className='flex-1'>
           <p className='text-paragraph-xs text-text-sub-600'>This request</p>
           <p className={`text-label-xs font-medium ${severityTextColor}`}>
-            +{formatMoney(requestAmount, currency)}
+            +{formatMoney(requestAmount)}
           </p>
         </div>
         <div className='flex-1'>
           <p className='text-paragraph-xs text-text-sub-600'>Remaining</p>
           <p className='text-label-xs font-medium text-text-strong-950'>
-            {formatMoney(Math.max(0, totalBudget - spent - requestAmount), currency)}
+            {formatMoney(Math.max(0, totalBudget - spent - requestAmount))}
           </p>
         </div>
       </div>

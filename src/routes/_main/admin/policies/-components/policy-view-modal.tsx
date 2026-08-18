@@ -4,6 +4,7 @@ import { RiShieldCheckLine, RiCheckLine, RiCloseLine } from '@remixicon/react';
 
 import * as Modal from '@/components/ui/modal';
 import * as Badge from '@/components/ui/badge';
+import * as StatusBadge from '@/components/ui/status-badge';
 import * as Divider from '@/components/ui/divider';
 import * as FancyButton from '@/components/ui/fancy-button';
 
@@ -15,13 +16,6 @@ function DetailRow({ label, children }: { label: string; children: React.ReactNo
     </div>
   );
 }
-
-const ACTION_BADGE_COLORS: Record<string, 'red' | 'orange' | 'blue' | 'green'> = {
-  BLOCK: 'red',
-  REQUIRE_APPROVAL: 'orange',
-  NOTIFY: 'blue',
-  AUTO_APPROVE: 'green',
-};
 
 const ACTION_LABELS: Record<string, string> = {
   BLOCK: 'Block',
@@ -68,9 +62,20 @@ export function PolicyViewModal({ isOpen, onClose, policy, onEdit }: PolicyViewM
             <Divider.Root />
             <DetailRow label="Action">
               {actionType ? (
-                <Badge.Root variant="stroke" color={ACTION_BADGE_COLORS[actionType] || 'gray'}>
+                <StatusBadge.Root
+                  variant="stroke"
+                  status={
+                    actionType === 'BLOCK'
+                      ? 'failed'
+                      : actionType === 'AUTO_APPROVE'
+                        ? 'completed'
+                        : actionType === 'REQUIRE_APPROVAL'
+                          ? 'pending'
+                          : 'disabled'
+                  }
+                >
                   {ACTION_LABELS[actionType] || actionType.replace(/_/g, ' ')}
-                </Badge.Root>
+                </StatusBadge.Root>
               ) : (
                 <span className="text-paragraph-sm text-text-sub-600">—</span>
               )}
@@ -78,15 +83,15 @@ export function PolicyViewModal({ isOpen, onClose, policy, onEdit }: PolicyViewM
             <Divider.Root />
             <DetailRow label="Status">
               {policy?.enabled ? (
-                <Badge.Root variant="stroke" color="green">
-                  <Badge.Icon as={RiCheckLine} />
+                <StatusBadge.Root variant="stroke" status="completed">
+                  <StatusBadge.Icon as={RiCheckLine} />
                   Enabled
-                </Badge.Root>
+                </StatusBadge.Root>
               ) : (
-                <Badge.Root variant="stroke" color="gray">
-                  <Badge.Icon as={RiCloseLine} />
+                <StatusBadge.Root variant="stroke" status="disabled">
+                  <StatusBadge.Icon as={RiCloseLine} />
                   Disabled
-                </Badge.Root>
+                </StatusBadge.Root>
               )}
             </DetailRow>
             <Divider.Root />
